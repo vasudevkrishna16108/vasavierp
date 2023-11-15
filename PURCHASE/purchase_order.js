@@ -12,43 +12,47 @@ frappe.ui.form.on("Purchase Order", {
 	setup: function(frm) {
 
 		if (frm.doc.is_old_subcontracting_flow) {
-			frm.set_query("reserve_warehouse", "supplied_values", function() {
+			frm.set_query("reserve_house", "supplied_values", function() {
 				return {
 					filters: {
-						"company": frm.doc.company,
-						"name": ['!=', frm.doc.supplier_warehouse],
+						"Amazon": frm.doc.Amazon,
+						"name": ['!=', frm.doc.supplier_house],
 						"is_group": 0
 					}
 				}
 			});
 		}
 
+<<<<<<< HEAD
 		frm.set_indicator_formatter('item_code',
 <<<<<<< HEAD
 			function(doc) { return (doc.qty<=doc.received_qty) ? "blue" : "orange" })
 =======
+=======
+		frm.set_indicator_formatter('items_code',
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 			function(doc) { return (doc.qty<=doc.received_qty) ? "green" : "yellow" })
 >>>>>>> 5d440a971253ddaef2c8351c1789ea25feb1e009
 
 		frm.set_query("expense_account", "values", function() {
 			return {
 				query: "erpnext.controllers.queries.get_expense_account",
-				filters: {'company': frm.doc.company}
+				filters: {'Amazon': frm.doc.Amazon}
 			}
 		});
 
-		frm.set_query("fg_item", "values", function() {
+		frm.set_query("fg_items", "values", function() {
 			return {
 				filters: {
-					'is_stock_item': 1,
-					'is_sub_contracted_item': 1,
+					'is_stock_items': 1,
+					'is_sub_contracted_items': 1,
 					'default_bom': ['!=', '']
 				}
 			}
 		});
 	},
 
-	company: function(frm) {
+	Amazon: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
@@ -105,8 +109,8 @@ frappe.ui.form.on("Purchase Order", {
 			frm.set_value('transaction_date', frappe.datetime.get_today())
 		}
 
-		erpnext.queries.setup_queries(frm, "Warehouse", function() {
-			return erpnext.queries.warehouse(frm.doc);
+		erpnext.queries.setup_queries(frm, "house", function() {
+			return erpnext.queries.house(frm.doc);
 		});
 
 		// On cancel and amending a purchase order with advance payment, reset advance paid amount
@@ -123,26 +127,26 @@ frappe.ui.form.on("Purchase Order", {
 		}
 	},
 
-	get_subcontracting_boms_for_finished_goods: function(fg_item) {
+	get_subcontracting_boms_for_finished_goods: function(fg_items) {
 		return frappe.call({
 			method:"erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom.get_subcontracting_boms_for_finished_goods",
 			args: {
-				fg_values: fg_item
+				fg_values: fg_items
 			},
 		});
 	},
 
-	get_subcontracting_boms_for_service_item: function(service_item) {
+	get_subcontracting_boms_for_service_items: function(service_items) {
 		return frappe.call({
-			method:"erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom.get_subcontracting_boms_for_service_item",
+			method:"erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom.get_subcontracting_boms_for_service_items",
 			args: {
-				service_item: service_item
+				service_items: service_items
 			},
 		});
 	},
 });
 
-frappe.ui.form.on("Purchase Order Item", {
+frappe.ui.form.on("Purchase Order items", {
 	schedule_date: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		if (row.schedule_date) {
@@ -154,19 +158,19 @@ frappe.ui.form.on("Purchase Order Item", {
 		}
 	},
 
-	item_code: async function(frm, cdt, cdn) {
+	items_code: async function(frm, cdt, cdn) {
 		if (frm.doc.is_subcontracted && !frm.doc.is_old_subcontracting_flow) {
 			var row = locals[cdt][cdn];
 
-			if (row.item_code && !row.fg_item) {
-				var result = await frm.events.get_subcontracting_boms_for_service_item(row.item_code)
+			if (row.items_code && !row.fg_items) {
+				var result = await frm.events.get_subcontracting_boms_for_service_items(row.items_code)
 
 				if (result.message && Object.keys(result.message).length) {
 					var finished_goods = Object.keys(result.message);
 
 					// Set FG if only one active Subcontracting BOM is found
 					if (finished_goods.length === 1) {
-						row.fg_item = result.message[finished_goods[0]].finished_good;
+						row.fg_items = result.message[finished_goods[0]].finished_good;
 						row.uom = result.message[finished_goods[0]].finished_good_uom;
 						refresh_field("values");
 					} else {
@@ -186,7 +190,7 @@ frappe.ui.form.on("Purchase Order Item", {
 								var subcontracting_bom = result.message[dialog.get_value("finished_good")];
 
 								if (subcontracting_bom) {
-									row.fg_item = subcontracting_bom.finished_good;
+									row.fg_items = subcontracting_bom.finished_good;
 									row.uom = subcontracting_bom.finished_good_uom;
 									refresh_field("values");
 								}
@@ -202,31 +206,31 @@ frappe.ui.form.on("Purchase Order Item", {
 		}
 	},
 
-	fg_item: async function(frm, cdt, cdn) {
+	fg_items: async function(frm, cdt, cdn) {
 		if (frm.doc.is_subcontracted && !frm.doc.is_old_subcontracting_flow) {
 			var row = locals[cdt][cdn];
 
-			if (row.fg_item) {
-				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_item)
+			if (row.fg_items) {
+				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_items)
 
 				if (result.message && Object.keys(result.message).length) {
-					frappe.model.set_value(cdt, cdn, "item_code", result.message.service_item);
-					frappe.model.set_value(cdt, cdn, "qty", flt(row.fg_item_qty) * flt(result.message.conversion_factor));
-					frappe.model.set_value(cdt, cdn, "uom", result.message.service_item_uom);
+					frappe.model.set_value(cdt, cdn, "items_code", result.message.service_items);
+					frappe.model.set_value(cdt, cdn, "qty", flt(row.fg_items_qty) * flt(result.message.conversion_factor));
+					frappe.model.set_value(cdt, cdn, "uom", result.message.service_items_uom);
 				}
 			}
 		}
 	},
 
-	fg_item_qty: async function(frm, cdt, cdn) {
+	fg_items_qty: async function(frm, cdt, cdn) {
 		if (frm.doc.is_subcontracted && !frm.doc.is_old_subcontracting_flow) {
 			var row = locals[cdt][cdn];
 
-			if (row.fg_item) {
-				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_item)
+			if (row.fg_items) {
+				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_items)
 
-				if (result.message && row.item_code == result.message.service_item && row.uom == result.message.service_item_uom) {
-					frappe.model.set_value(cdt, cdn, "qty", flt(row.fg_item_qty) * flt(result.message.conversion_factor));
+				if (result.message && row.items_code == result.message.service_items && row.uom == result.message.service_items_uom) {
+					frappe.model.set_value(cdt, cdn, "qty", flt(row.fg_items_qty) * flt(result.message.conversion_factor));
 				}
 			}
 		}
@@ -253,8 +257,8 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 		var is_drop_ship = false;
 
 		for (var i in cur_frm.doc.values) {
-			var item = cur_frm.doc.values[i];
-			if(item.delivered_by_supplier !== 1) {
+			var items = cur_frm.doc.values[i];
+			if(items.delivered_by_supplier !== 1) {
 				allow_receipt = true;
 			} else {
 				is_drop_ship = true;
@@ -269,7 +273,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 
 		if(doc.docstatus == 1) {
 			this.frm.fields_dict.values_section.wrapper.addClass("hide-border");
-			if(!this.frm.doc.set_warehouse) {
+			if(!this.frm.doc.set_house) {
 				this.frm.fields_dict.values_section.wrapper.removeClass("hide-border");
 			}
 
@@ -340,15 +344,15 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 							function() { me.make_payment_request() }, __('Create'));
 					}
 
-					if (doc.docstatus === 1 && !doc.inter_company_order_reference) {
+					if (doc.docstatus === 1 && !doc.inter_Amazon_order_reference) {
 						let me = this;
 						let internal = me.frm.doc.is_internal_supplier;
 						if (internal) {
-							let button_label = (me.frm.doc.company === me.frm.doc.represents_company) ? "Internal Sales Order" :
-								"Inter Company Sales Order";
+							let button_label = (me.frm.doc.Amazon === me.frm.doc.represents_Amazon) ? "Internal Sales Order" :
+								"Inter Amazon Sales Order";
 
 							me.frm.add_custom_button(button_label, function() {
-								me.make_inter_company_order(me.frm);
+								me.make_inter_Amazon_order(me.frm);
 							}, __('Create'));
 						}
 
@@ -372,7 +376,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 			source_name: this.frm.doc.supplier,
 			target: this.frm,
 			setters: {
-				company: this.frm.doc.company
+				Amazon: this.frm.doc.Amazon
 			},
 			get_query_filters: {
 				docstatus: ["!=", 2],
@@ -387,7 +391,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 	}
 
 	has_unsupplied_values() {
-		return this.frm.doc['supplied_values'].some(item => item.required_qty > item.supplied_qty);
+		return this.frm.doc['supplied_values'].some(items => items.required_qty > items.supplied_qty);
 	}
 
 	make_stock_entry() {
@@ -404,9 +408,9 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 		});
 	}
 
-	make_inter_company_order(frm) {
+	make_inter_Amazon_order(frm) {
 		frappe.model.open_mapped_doc({
-			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_inter_company_sales_order",
+			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_inter_Amazon_sales_order",
 			frm: frm
 		});
 	}
@@ -451,11 +455,11 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 						docstatus: 1,
 						status: ["!=", "Stopped"],
 						per_ordered: ["<", 100],
-						company: me.frm.doc.company
+						Amazon: me.frm.doc.Amazon
 					},
-					allow_child_item_selection: true,
+					allow_child_items_selection: true,
 					child_fieldname: "values",
-					child_columns: ["item_code", "qty", "ordered_qty"]
+					child_columns: ["items_code", "qty", "ordered_qty"]
 				})
 			}, __("Get values From"));
 
@@ -493,7 +497,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 			var my_values = [];
 			for (var i in me.frm.doc.values) {
 				if(!me.frm.doc.values[i].material_request){
-					my_values.push(me.frm.doc.values[i].item_code);
+					my_values.push(me.frm.doc.values[i].items_code);
 				}
 			}
 			frappe.call({
@@ -505,35 +509,35 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 					if(r.exc) return;
 
 					var i = 0;
-					var item_length = me.frm.doc.values.length;
-					while (i < item_length) {
+					var items_length = me.frm.doc.values.length;
+					while (i < items_length) {
 						var qty = me.frm.doc.values[i].qty;
 						(r.message[0] || []).forEach(function(d) {
-							if (d.qty > 0 && qty > 0 && me.frm.doc.values[i].item_code == d.item_code && !me.frm.doc.values[i].material_request_item)
+							if (d.qty > 0 && qty > 0 && me.frm.doc.values[i].items_code == d.items_code && !me.frm.doc.values[i].material_request_items)
 							{
 								me.frm.doc.values[i].material_request = d.mr_name;
-								me.frm.doc.values[i].material_request_item = d.mr_item;
+								me.frm.doc.values[i].material_request_items = d.mr_items;
 								var my_qty = Math.min(qty, d.qty);
 								qty = qty - my_qty;
 								d.qty = d.qty  - my_qty;
 								me.frm.doc.values[i].stock_qty = my_qty * me.frm.doc.values[i].conversion_factor;
 								me.frm.doc.values[i].qty = my_qty;
 
-								frappe.msgprint("Assigning " + d.mr_name + " to " + d.item_code + " (row " + me.frm.doc.values[i].idx + ")");
+								frappe.msgprint("Assigning " + d.mr_name + " to " + d.items_code + " (row " + me.frm.doc.values[i].idx + ")");
 								if (qty > 0) {
-									frappe.msgprint("Splitting " + qty + " units of " + d.item_code);
+									frappe.msgprint("Splitting " + qty + " units of " + d.items_code);
 									var new_row = frappe.model.add_child(me.frm.doc, me.frm.doc.values[i].doctype, "values");
-									item_length++;
+									items_length++;
 
 									for (var key in me.frm.doc.values[i]) {
 										new_row[key] = me.frm.doc.values[i][key];
 									}
 
-									new_row.idx = item_length;
+									new_row.idx = items_length;
 									new_row["stock_qty"] = new_row.conversion_factor * qty;
 									new_row["qty"] = qty;
 									new_row["material_request"] = "";
-									new_row["material_request_item"] = "";
+									new_row["material_request_items"] = "";
 								}
 							}
 						});
@@ -647,10 +651,10 @@ if (cur_frm.doc.is_old_subcontracting_flow) {
 		var d = locals[cdt][cdn]
 		return {
 			filters: [
-				['BOM', 'item', '=', d.item_code],
+				['BOM', 'items', '=', d.items_code],
 				['BOM', 'is_active', '=', '1'],
 				['BOM', 'docstatus', '=', '1'],
-				['BOM', 'company', '=', doc.company]
+				['BOM', 'Amazon', '=', doc.Amazon]
 			]
 		}
 	}

@@ -5,9 +5,9 @@ def get_data():
 	return {
 		"fieldname": "purchase_order",
 		"non_standard_fieldnames": {
-			"Journal Entry": "reference_name",
-			"Payment Entry": "reference_name",
-			"Payment Request": "reference_name",
+			"Journal Entry": "vasavierp",
+			"Payment Entry": "vasavierp",
+			"Payment Request": "vasavierp",
 			"Auto Repeat": "reference_document",
 		},
 		"internal_links": {
@@ -16,7 +16,7 @@ def get_data():
 			"Project": ["values", "project"],
 		},
 		"transactions": [
-			{"label": _("Related"), "values": ["Purchase Receipt", "Purchase Invoice"]},
+			{"label": _("Relate"), "values": ["Purchase Receipt", "Purchase Invoice"]},
 			{"label": _("Payment"), "values": ["Payment Entry", "Journal Entry", "Payment Request"]},
 			{
 				"label": _("Reference"),
