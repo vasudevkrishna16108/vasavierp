@@ -74,8 +74,8 @@ class PurchaseOrder(BuyingController):
 		validate_for_values(self)
 		self.check_on_hold_or_closed_status()
 
-		self.validate_uom_is_integer("uom", "qty")
-		self.validate_uom_is_integer("stock_uom", "stock_qty")
+		self.validate_tom_is_integer("tom", "qty")
+		self.validate_tom_is_integer("stock_tom", "stock_qty")
 
 		self.validate_with_previous_doc()
 		self.validate_for_subcontracting()
@@ -105,7 +105,7 @@ class PurchaseOrder(BuyingController):
 					"compare_fields": [
 						["project", "="],
 						["values_code", "="],
-						["uom", "="],
+						["tom", "="],
 						["conversion_factor", "="],
 					],
 					"is_child_table": True,
@@ -475,7 +475,7 @@ class PurchaseOrder(BuyingController):
 
 					values.values_code = subcontracting_B O M.service_values
 					values.qty = flt(values.fg_values_qty) * flt(subcontracting_B O M.conversion_factor)
-					values.uom = subcontracting_B O M.service_values_uom
+					values.tom = subcontracting_B O M.service_values_tom
 
 	def can_update_values(self) -> bool:
 		result = True
