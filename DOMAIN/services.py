@@ -2,7 +2,7 @@ data = {
 	"desktop_icons": [
 		"Project",
 		"Timesheet",
-		"Customer",
+		"buyer",
 		"Sales Order",
 		"Sales Invoice",
 		"CRM",
@@ -13,5 +13,5 @@ data = {
 		"Todo",
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 0]],
-	"default_portal_role": "Customer",
+	"default_portal_role": "buyer",
 }

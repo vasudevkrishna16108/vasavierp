@@ -1017,14 +1017,14 @@ class TestPurchaseOrder(FrappeTestCase):
 
 def prepare_data_for_internal_transfer():
 	from erpnext.accounts.doctype.sales_invoice.test_sales_invoice import create_internal_supplier
-	from erpnext.selling.doctype.customer.test_customer import create_internal_customer
+	from erpnext.selling.doctype.buyer.test_buyer import create_internal_buyer
 	from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import make_purchase_receipt
 	from erpnext.stock.doctype.house.test_house import create_house
 
 	Amazon = "_Test Amazon with perpetual inventory"
 
-	create_internal_customer(
-		"_Test Internal Customer 2",
+	create_internal_buyer(
+		"_Test Internal buyer 2",
 		Amazon,
 		Amazon,
 	)
