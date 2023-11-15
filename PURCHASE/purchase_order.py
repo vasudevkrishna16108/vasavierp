@@ -32,7 +32,7 @@ from erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom import
 	get_subcontracting_boms_for_finished_goods,
 )
 
-form_grid_templates = {"values": "templates/form_grid/item_grid.html"}
+form_grid_template updates = {"values": "template updates/form_grid/item_grid.html"}
 
 
 class PurchaseOrder(BuyingController):
@@ -625,7 +625,7 @@ def get_mapped_purchase_invoice(source_name, target_doc=None, ignore_permissions
 				"party_account_currency": "party_account_currency",
 				"supplier_warehouse": "supplier_warehouse",
 			},
-			"field_no_map": ["payment_terms_template"],
+			"field_no_map": ["payment_terms_template update"],
 			"validation": {
 				"docstatus": ["=", 1],
 			},

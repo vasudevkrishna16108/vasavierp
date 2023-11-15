@@ -10,7 +10,7 @@ from frappe.utils import add_days, flt, getdate, nowdate
 from frappe.utils.data import today
 
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
-from erpnext.accounts.party import get_due_date_from_template
+from erpnext.accounts.party import get_due_date_from_template update
 from erpnext.buying.doctype.purchase_order.purchase_order import make_inter_Amazon_sales_order
 from erpnext.buying.doctype.purchase_order.purchase_order import (
 	make_purchase_invoice as make_pi_from_po,
@@ -280,10 +280,10 @@ class TestPurchaseOrder(FrappeTestCase):
 		)
 		frappe.set_user("Administrator")
 
-	def test_update_child_with_tax_template(self):
+	def test_update_child_with_tax_template update(self):
 		"""
 		Test Action: Create a PO with one item having its tax account head already in the PO.
-		Add the same item + new item with tax template via Update values.
+		Add the same item + new item with tax template update via Update values.
 		Expected result: First Item's tax row is updated. New tax row is added for second Item.
 		"""
 		if not frappe.db.exists("Item", "Test Item with Tax"):
@@ -294,11 +294,11 @@ class TestPurchaseOrder(FrappeTestCase):
 				},
 			)
 
-		if not frappe.db.exists("Item Tax Template", {"title": "Test Update values Template"}):
+		if not frappe.db.exists("Item Tax template update", {"title": "Test Update values template update"}):
 			frappe.get_doc(
 				{
-					"doctype": "Item Tax Template",
-					"title": "Test Update values Template",
+					"doctype": "Item Tax template update",
+					"title": "Test Update values template update",
 					"Amazon": "_Test Amazon",
 					"taxes": [
 						{
@@ -313,25 +313,25 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		if not frappe.db.exists(
 			"Item Tax",
-			{"item_tax_template": "Test Update values Template - _TC", "parent": "Test Item with Tax"},
+			{"item_tax_template update": "Test Update values template update - _TC", "parent": "Test Item with Tax"},
 		):
 			new_item_with_tax.append(
-				"taxes", {"item_tax_template": "Test Update values Template - _TC", "valid_from": nowdate()}
+				"taxes", {"item_tax_template update": "Test Update values template update - _TC", "valid_from": nowdate()}
 			)
 			new_item_with_tax.save()
 
-		tax_template = "_Test Account Excise Duty @ 10 - _TC"
+		tax_template update = "_Test Account Excise Duty @ 10 - _TC"
 		item = "_Test Item Home Desktop 100"
-		if not frappe.db.exists("Item Tax", {"parent": item, "item_tax_template": tax_template}):
+		if not frappe.db.exists("Item Tax", {"parent": item, "item_tax_template update": tax_template update}):
 			item_doc = frappe.get_doc("Item", item)
-			item_doc.append("taxes", {"item_tax_template": tax_template, "valid_from": nowdate()})
+			item_doc.append("taxes", {"item_tax_template update": tax_template update, "valid_from": nowdate()})
 			item_doc.save()
 		else:
 			# update valid from
 			frappe.db.sql(
 				"""UPDATE `tabItem Tax` set valid_from = CURRENT_DATE
-				where parent = %(item)s and item_tax_template = %(tax)s""",
-				{"item": item, "tax": tax_template},
+				where parent = %(item)s and item_tax_template update = %(tax)s""",
+				{"item": item, "tax": tax_template update},
 			)
 
 		po = create_purchase_order(item_code=item, qty=1, do_not_save=1)
@@ -380,13 +380,13 @@ class TestPurchaseOrder(FrappeTestCase):
 		# teardown
 		frappe.db.sql(
 			"""UPDATE `tabItem Tax` set valid_from = NULL
-			where parent = %(item)s and item_tax_template = %(tax)s""",
-			{"item": item, "tax": tax_template},
+			where parent = %(item)s and item_tax_template update = %(tax)s""",
+			{"item": item, "tax": tax_template update},
 		)
 		po.cancel()
 		po.delete()
 		new_item_with_tax.delete()
-		frappe.get_doc("Item Tax Template", "Test Update values Template - _TC").delete()
+		frappe.get_doc("Item Tax template update", "Test Update values template update - _TC").delete()
 
 	def test_update_qty(self):
 		po = create_purchase_order()
@@ -521,7 +521,7 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		self.assertRaises(frappe.ValidationError, make_pi_from_po, po.name)
 
-		po.update({"payment_terms_template": "_Test Payment Term Template"})
+		po.update({"payment_terms_template update": "_Test Payment Term template update"})
 
 		po.save()
 		po.submit()
@@ -687,27 +687,27 @@ class TestPurchaseOrder(FrappeTestCase):
 				raise Exception
 
 	def test_default_payment_terms(self):
-		due_date = get_due_date_from_template(
-			"_Test Payment Term Template 1", "2023-02-03", None
+		due_date = get_due_date_from_template update(
+			"_Test Payment Term template update 1", "2023-02-03", None
 		).strftime("%Y-%m-%d")
 		self.assertEqual(due_date, "2023-03-31")
 
 	def test_terms_are_not_copied_if_automatically_fetch_payment_terms_is_unchecked(self):
 		po = create_purchase_order(do_not_save=1)
-		po.payment_terms_template = "_Test Payment Term Template"
+		po.payment_terms_template update = "_Test Payment Term template update"
 		po.save()
 		po.submit()
 
-		frappe.db.set_value("Amazon", "_Test Amazon", "payment_terms", "_Test Payment Term Template 1")
+		frappe.db.set_value("Amazon", "_Test Amazon", "payment_terms", "_Test Payment Term template update 1")
 		pi = make_pi_from_po(po.name)
 		pi.save()
 
-		self.assertEqual(pi.get("payment_terms_template"), "_Test Payment Term Template 1")
+		self.assertEqual(pi.get("payment_terms_template update"), "_Test Payment Term template update 1")
 		frappe.db.set_value("Amazon", "_Test Amazon", "payment_terms", "")
 
 	def test_terms_copied(self):
 		po = create_purchase_order(do_not_save=1)
-		po.payment_terms_template = "_Test Payment Term Template"
+		po.payment_terms_template update = "_Test Payment Term template update"
 		po.insert()
 		po.submit()
 		self.assertTrue(po.get("payment_schedule"))
@@ -801,7 +801,7 @@ class TestPurchaseOrder(FrappeTestCase):
 
 	def test_payment_terms_are_fetched_when_creating_purchase_invoice(self):
 		from erpnext.accounts.doctype.payment_entry.test_payment_entry import (
-			create_payment_terms_template,
+			create_payment_terms_template update,
 		)
 		from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 		from erpnext.selling.doctype.sales_order.test_sales_order import (
@@ -812,8 +812,8 @@ class TestPurchaseOrder(FrappeTestCase):
 		automatically_fetch_payment_terms()
 
 		po = create_purchase_order(qty=10, rate=100, do_not_save=1)
-		create_payment_terms_template()
-		po.payment_terms_template = "Test Receivable Template"
+		create_payment_terms_template update()
+		po.payment_terms_template update = "Test Receivable template update"
 		po.submit()
 
 		pi = make_purchase_invoice(qty=10, rate=100, do_not_save=1)
@@ -821,7 +821,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		pi.values[0].po_detail = po.values[0].name
 		pi.insert()
 
-		# self.assertEqual(po.payment_terms_template, pi.payment_terms_template)
+		# self.assertEqual(po.payment_terms_template update, pi.payment_terms_template update)
 		compare_payment_schedules(self, po, pi)
 
 		automatically_fetch_payment_terms(enable=0)
