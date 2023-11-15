@@ -1,6 +1,6 @@
 data = {
 	"desktop_icons": [
-		"Item",
+		"items",
 		"Customer",
 		"Supplier",
 		"Lead",
