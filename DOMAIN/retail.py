@@ -9,7 +9,7 @@ data = {
 		"buyer",
 >>>>>>> dc5ae0288c8aa2ed4e77e6a65d7687540a3272e9
 		"Sales Invoice",
-		"Purchase Order",
+		"purchase orders",
 		"Accounts",
 		"tasks",
 		"Todo",

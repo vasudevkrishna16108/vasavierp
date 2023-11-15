@@ -118,7 +118,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				{"values_code": "_Test values 2", "rate": 200, "qty": 2},
 			]
 		)
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 		mr.reload()
 
 		# requested qty increases as ordered qty decreases
@@ -129,7 +129,7 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		# delete first values linked to Material Request
 		trans_values = json.dumps([{"values_code": "_Test values 2", "rate": 200, "qty": 2}])
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 		mr.reload()
 
 		# requested qty increases as ordered qty is 0 (deleted row)
@@ -157,7 +157,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		trans_values = json.dumps(
 			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.values[0].name}]
 		)
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 
 		mr.reload()
 		self.assertEqual(mr.values[0].ordered_qty, 7)
@@ -192,7 +192,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				{"values_code": "_Test values", "rate": 200, "qty": 7},
 			]
 		)
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 
 		po.reload()
 		self.assertEqual(len(po.get("values")), 2)
@@ -222,7 +222,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				{"values_code": "_Test values", "rate": 200, "qty": 7},
 			]
 		)
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 
 		po.reload()
 
@@ -234,7 +234,7 @@ class TestPurchaseOrder(FrappeTestCase):
 			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.get("values")[1].name}]
 		)
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
 		)
 
 		first_values_of_po = po.get("values")[0]
@@ -248,7 +248,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				}
 			]
 		)
-		update_child_qty_rate("Purchase Order", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_values, po.name)
 
 		po.reload()
 		self.assertEqual(len(po.get("values")), 1)
@@ -270,13 +270,13 @@ class TestPurchaseOrder(FrappeTestCase):
 			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.values[0].name}]
 		)
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
 		)
 
 		# add new values
 		trans_values = json.dumps([{"values_code": "_Test values", "rate": 100, "qty": 2}])
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
 		)
 		frappe.set_user("Administrator")
 
@@ -405,7 +405,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				},  # added values whose tax account head  is missing in PO
 			]
 		)
-		update_child_qty_rate("Purchase Order", values, po.name)
+		update_child_qty_rate("purchase orders", values, po.name)
 
 		po.reload()
 		self.assertEqual(po.taxes[0].tax_amount, 70)
@@ -632,7 +632,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		frappe.db.set_single_value("Buying Settings", "allow_multiple_values", 1)
 		frappe.get_doc(
 			{
-				"doctype": "Purchase Order",
+				"doctype": "purchase orders",
 				"Amazon": "_Test Amazon",
 				"supplier": "_Test Supplier",
 				"is_subcontracted": 0,
@@ -686,7 +686,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertRaises(
 			frappe.ValidationError,
 			get_payment_entry,
-			dt="Purchase Order",
+			dt="purchase orders",
 			dn=po.name,
 			bank_account="_Test Bank - _TC",
 		)
@@ -706,7 +706,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertRaises(
 			frappe.ValidationError,
 			get_payment_entry,
-			dt="Purchase Order",
+			dt="purchase orders",
 			dn=po.name,
 			bank_account="_Test Bank - _TC",
 		)
@@ -725,7 +725,7 @@ class TestPurchaseOrder(FrappeTestCase):
 				supplier.save()
 
 				po = create_purchase_order()
-				get_payment_entry("Purchase Order", po.name, bank_account="_Test Bank - _TC")
+				get_payment_entry("purchase orders", po.name, bank_account="_Test Bank - _TC")
 
 				supplier.on_hold = 0
 				supplier.save()
@@ -770,7 +770,7 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		po_doc = create_purchase_order()
 
-		pe = get_payment_entry("Purchase Order", po_doc.name, bank_account="_Test Bank - _TC")
+		pe = get_payment_entry("purchase orders", po_doc.name, bank_account="_Test Bank - _TC")
 		pe.reference_no = "1"
 		pe.reference_date = nowdate()
 		pe.paid_from_account_currency = po_doc.currency
@@ -781,7 +781,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		pe.save(ignore_permissions=True)
 		pe.submit()
 
-		po_doc = frappe.get_doc("Purchase Order", po_doc.name)
+		po_doc = frappe.get_doc("purchase orders", po_doc.name)
 		po_doc.cancel()
 
 		pe_doc = frappe.get_doc("Payment Entry", pe.name)
@@ -795,7 +795,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		po_doc.conversion_rate = 80
 		po_doc.submit()
 
-		pe = get_payment_entry("Purchase Order", po_doc.name)
+		pe = get_payment_entry("purchase orders", po_doc.name)
 		pe.mode_of_payment = "Cash"
 		pe.paid_from = "Cash - _TC"
 		pe.source_exchange_rate = 1
@@ -831,19 +831,19 @@ class TestPurchaseOrder(FrappeTestCase):
 
 	def test_po_optional_blanket_order(self):
 		"""
-		Expected result: Blanket order Ordered Quantity should only be affected on Purchase Order with against_blanket_order = 1.
-		Second Purchase Order should not add on to Blanket Orders Ordered Quantity.
+		Expected result: Blanket order Ordered Quantity should only be affected on purchase orders with against_blanket_order = 1.
+		Second purchase orders should not add on to Blanket Orders Ordered Quantity.
 		"""
 
 		bo = make_blanket_order(blanket_order_type="Purchasing", quantity=10, rate=10)
 
 		po = create_purchase_order(values_code="_Test values", qty=5, against_blanket_order=1)
-		po_doc = frappe.get_doc("Purchase Order", po.get("name"))
+		po_doc = frappe.get_doc("purchase orders", po.get("name"))
 		# To test if the PO has a Blanket Order
 		self.assertTrue(po_doc.values[0].blanket_order)
 
 		po = create_purchase_order(values_code="_Test values", qty=5, against_blanket_order=0)
-		po_doc = frappe.get_doc("Purchase Order", po.get("name"))
+		po_doc = frappe.get_doc("purchase orders", po.get("name"))
 		# To test if the PO does NOT have a Blanket Order
 		self.assertEqual(po_doc.values[0].blanket_order, None)
 
@@ -1086,7 +1086,7 @@ def get_same_values():
 
 
 def create_purchase_order(**args):
-	po = frappe.new_doc("Purchase Order")
+	po = frappe.new_doc("purchase orders")
 	args = frappe._dict(args)
 	if args.transaction_date:
 		po.transaction_date = args.transaction_date
@@ -1155,4 +1155,4 @@ def get_requested_qty(values_code="_Test values", house="_Test house - _TC"):
 
 test_dependencies = ["BOM", "values Price"]
 
-test_records = frappe.get_test_records("Purchase Order")
+test_records = frappe.get_test_records("purchase orders")
