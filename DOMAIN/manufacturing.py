@@ -2,7 +2,7 @@ data = {
 	"desktop_icons": [
 		"items",
 		"BOM",
-		"Customer",
+		"buyer",
 		"Supplier",
 		"Sales Order",
 		"Purchase Order",
@@ -21,5 +21,5 @@ data = {
 		},
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 1]],
-	"default_portal_role": "Customer",
+	"default_portal_role": "buyer",
 }

@@ -1,7 +1,7 @@
 data = {
 	"desktop_icons": [
 		"items",
-		"Customer",
+		"buyer",
 		"Supplier",
 		"Lead",
 		"Sales Order",
@@ -12,5 +12,5 @@ data = {
 		"Todo",
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 1]],
-	"default_portal_role": "Customer",
+	"default_portal_role": "buyer",
 }

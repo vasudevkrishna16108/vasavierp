@@ -117,13 +117,13 @@
   "column_break_103",
   "billing_address_display",
   "drop_ship",
-  "customer",
-  "customer_name",
+  "buyer",
+  "buyer_name",
   "column_break_19",
-  "customer_contact_person",
-  "customer_contact_display",
-  "customer_contact_mobile",
-  "customer_contact_email",
+  "buyer_contact_person",
+  "buyer_contact_display",
+  "buyer_contact_mobile",
+  "buyer_contact_email",
   "terms_tab",
   "payment_schedule_section",
   "payment_terms_template",
@@ -281,23 +281,23 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.customer",
+   "depends_on": "eval:doc.buyer",
    "fieldname": "drop_ship",
    "fieldtype": "Tab Break",
    "label": "Drop Ship"
   },
   {
-   "fieldname": "customer",
+   "fieldname": "buyer",
    "fieldtype": "Link",
-   "label": "Customer",
-   "options": "Customer",
+   "label": "buyer",
+   "options": "buyer",
    "read_only": 1
   },
   {
    "bold": 1,
-   "fieldname": "customer_name",
+   "fieldname": "buyer_name",
    "fieldtype": "Data",
-   "label": "Customer Name",
+   "label": "buyer Name",
    "print_hide": 1,
    "read_only": 1
   },
@@ -306,30 +306,30 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "customer_contact_person",
+   "fieldname": "buyer_contact_person",
    "fieldtype": "Link",
-   "label": "Customer Contact",
+   "label": "buyer Contact",
    "options": "Contact"
   },
   {
-   "fieldname": "customer_contact_display",
+   "fieldname": "buyer_contact_display",
    "fieldtype": "Small Text",
-   "label": "Customer Contact",
+   "label": "buyer Contact",
    "print_hide": 1
   },
   {
-   "fieldname": "customer_contact_mobile",
+   "fieldname": "buyer_contact_mobile",
    "fieldtype": "Small Text",
    "hidden": 1,
-   "label": "Customer Mobile No",
+   "label": "buyer Mobile No",
    "options": "Phone",
    "print_hide": 1
   },
   {
-   "fieldname": "customer_contact_email",
+   "fieldname": "buyer_contact_email",
    "fieldtype": "Code",
    "hidden": 1,
-   "label": "Customer Contact Email",
+   "label": "buyer Contact Email",
    "options": "Email",
    "print_hide": 1
   },
