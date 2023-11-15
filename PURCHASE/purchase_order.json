@@ -499,7 +499,7 @@
    "fieldname": "values",
    "fieldtype": "Table",
    "label": "values",
-   "oldfieldname": "po_details",
+   "oldfieldname": "product details",
    "oldfieldtype": "Table",
    "options": "Purchase Order Item",
    "reqd": 1

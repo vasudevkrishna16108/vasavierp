@@ -63,17 +63,17 @@ frappe.ui.form.on("Purchase Order", {
 	},
 
 	get_materials_from_supplier: function(frm) {
-		let po_details = [];
+		let product details = [];
 
 		if (frm.doc.supplied_values && (flt(frm.doc.per_received, 2) == 100 || frm.doc.status === 'Closed')) {
 			frm.doc.supplied_values.forEach(d => {
 				if (d.total_supplied_qty && d.total_supplied_qty != d.consumed_qty) {
-					po_details.push(d.name)
+					product details.push(d.name)
 				}
 			});
 		}
 
-		if (po_details && po_details.length) {
+		if (product details && product details.length) {
 			frm.add_custom_button(__('Return of Components'), () => {
 				frm.call({
 					method: 'erpnext.controllers.subcontracting_controller.get_materials_from_supplier',
@@ -81,7 +81,7 @@ frappe.ui.form.on("Purchase Order", {
 					freeze_message: __('Creating Stock Entry'),
 					args: {
 						subcontract_order: frm.doc.name,
-						rm_details: po_details,
+						rm_details: product details,
 						order_doctype: cur_frm.doc.doctype
 					},
 					callback: function(r) {
