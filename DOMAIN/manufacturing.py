@@ -1,8 +1,8 @@
 data = {
 	"desktop_icons": [
-		"items",
+		"values",
 		"BOM",
-		"Customer",
+		"buyer",
 		"Supplier",
 		"Sales Order",
 		"Purchase Order",
@@ -14,12 +14,12 @@ data = {
 	],
 	"properties": [
 		{
-			"doctype": "items",
+			"doctype": "values",
 			"fieldname": "manufacturing",
 			"property": "collapsible_depends_on",
-			"value": "is_stock_items",
+			"value": "is_stock_values",
 		},
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 1]],
-	"default_portal_role": "Customer",
+	"default_portal_role": "buyer",
 }
