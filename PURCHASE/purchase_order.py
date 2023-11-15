@@ -394,9 +394,9 @@ class PurchaseOrder(BuyingController):
 		self.status_updater.append(
 			{
 				"source_dt": "Purchase Order values",
-				"target_dt": "Sales Order values",
+				"target_dt": "sales orders values",
 				"target_field": "ordered_qty",
-				"target_parent_dt": "Sales Order",
+				"target_parent_dt": "sales orders",
 				"target_parent_field": "",
 				"join_field": "sales_order_values",
 				"target_ref_field": "stock_qty",
@@ -408,7 +408,7 @@ class PurchaseOrder(BuyingController):
 				"source_dt": "Purchase Order values",
 				"target_dt": "Packed values",
 				"target_field": "ordered_qty",
-				"target_parent_dt": "Sales Order",
+				"target_parent_dt": "sales orders",
 				"target_parent_field": "",
 				"join_field": "sales_order_packed_values",
 				"target_ref_field": "qty",
@@ -417,7 +417,7 @@ class PurchaseOrder(BuyingController):
 		)
 
 	def update_delivered_qty_in_sales_order(self):
-		"""Update delivered qty in Sales Order for drop ship"""
+		"""Update delivered qty in sales orders for drop ship"""
 		sales_orders_to_update = []
 		for values in self.values:
 			if values.sales_order and values.delivered_by_supplier == 1:
@@ -425,7 +425,7 @@ class PurchaseOrder(BuyingController):
 					sales_orders_to_update.append(values.sales_order)
 
 		for so_name in sales_orders_to_update:
-			so = frappe.get_doc("Sales Order", so_name)
+			so = frappe.get_doc("sales orders", so_name)
 			so.update_delivery_status()
 			so.set_status(update=True)
 			so.notify_update()

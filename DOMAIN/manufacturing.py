@@ -4,7 +4,7 @@ data = {
 		"BOM",
 		"buyer",
 		"Supplier",
-		"Sales Order",
+		"sales orders",
 		"Purchase Order",
 		"Work Order",
 		"tasks",

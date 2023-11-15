@@ -947,7 +947,7 @@
    "fieldname": "inter_Amazon_order_reference",
    "fieldtype": "Link",
    "label": "Inter Amazon Order Reference",
-   "options": "Sales Order",
+   "options": "sales orders",
    "read_only": 1
   },
   {

@@ -23,6 +23,6 @@ def get_data():
 				"values": ["Material Request", "Supplier Quotation", "Project", "Auto Repeat"],
 			},
 			{"label": _("Sub-contracting"), "values": ["Subcontracting Order", "Stock Entry"]},
-			{"label": _("Internal"), "values": ["Sales Order"]},
+			{"label": _("Internal"), "values": ["sales orders"]},
 		],
 	}

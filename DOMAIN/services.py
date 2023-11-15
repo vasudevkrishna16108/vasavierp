@@ -3,7 +3,7 @@ data = {
 		"Project",
 		"Timesheet",
 		"buyer",
-		"Sales Order",
+		"sales orders",
 		"Sales Invoice",
 		"CRM",
 		"tasks",
