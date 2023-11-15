@@ -24,7 +24,7 @@
   "apply_tds",
   "tax_withholding_category",
   "is_subcontracted",
-  "supplier_warehouse",
+  "supplier_house",
   "amended_from",
   "accounting_dimensions_section",
   "cost_center",
@@ -40,9 +40,9 @@
   "ignore_pricing_rule",
   "before_values_section",
   "scan_barcode",
-  "set_from_warehouse",
+  "set_from_house",
   "values_col_break",
-  "set_warehouse",
+  "set_house",
   "values_section",
   "values",
   "sb_last_purchase",
@@ -59,7 +59,7 @@
   "section_break_48",
   "pricing_rules",
   "raw_material_details",
-  "set_reserve_warehouse",
+  "set_reserve_house",
   "supplied_values",
   "taxes_section",
   "tax_category",
@@ -126,7 +126,7 @@
   "buyer_contact_email",
   "terms_tab",
   "payment_schedule_section",
-  "payment_terms_template",
+  "payment_terms_template update",
   "payment_schedule",
   "terms_section_break",
   "tc_name",
@@ -460,10 +460,10 @@
    "print_hide": 1
   },
   {
-   "fieldname": "set_warehouse",
+   "fieldname": "set_house",
    "fieldtype": "Link",
-   "label": "Set Target Warehouse",
-   "options": "Warehouse",
+   "label": "Set Target house",
+   "options": "house",
    "print_hide": 1
   },
   {
@@ -475,11 +475,11 @@
   },
   {
    "depends_on": "eval:doc.is_subcontracted",
-   "fieldname": "supplier_warehouse",
+   "fieldname": "supplier_house",
    "fieldtype": "Link",
    "ignore_user_permissions": 1,
-   "label": "Supplier Warehouse",
-   "options": "Warehouse"
+   "label": "Supplier house",
+   "options": "house"
   },
   {
    "fieldname": "values_section",
@@ -603,10 +603,10 @@
   {
    "fieldname": "taxes_and_charges",
    "fieldtype": "Link",
-   "label": "Purchase Taxes and Charges Template",
+   "label": "Purchase Taxes and Charges template update",
    "oldfieldname": "purchase_other_charges",
    "oldfieldtype": "Link",
-   "options": "Purchase Taxes and Charges Template",
+   "options": "Purchase Taxes and Charges template update",
    "print_hide": 1
   },
   {
@@ -870,10 +870,10 @@
    "label": "Payment Terms"
   },
   {
-   "fieldname": "payment_terms_template",
+   "fieldname": "payment_terms_template update",
    "fieldtype": "Link",
-   "label": "Payment Terms Template",
-   "options": "Payment Terms Template"
+   "label": "Payment Terms template update",
+   "options": "Payment Terms template update"
   },
   {
    "fieldname": "payment_schedule",
@@ -1074,10 +1074,10 @@
   },
   {
    "depends_on": "supplied_values",
-   "fieldname": "set_reserve_warehouse",
+   "fieldname": "set_reserve_house",
    "fieldtype": "Link",
-   "label": "Set Reserve Warehouse",
-   "options": "Warehouse"
+   "label": "Set Reserve house",
+   "options": "house"
   },
   {
    "collapsible": 1,
@@ -1172,11 +1172,11 @@
   },
   {
    "depends_on": "is_internal_supplier",
-   "fieldname": "set_from_warehouse",
+   "fieldname": "set_from_house",
    "fieldtype": "Link",
    "ignore_user_permissions": 1,
-   "label": "Set From Warehouse",
-   "options": "Warehouse"
+   "label": "Set From house",
+   "options": "house"
   },
   {
    "fieldname": "terms_tab",

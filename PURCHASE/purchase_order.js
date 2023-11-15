@@ -12,11 +12,11 @@ frappe.ui.form.on("Purchase Order", {
 	setup: function(frm) {
 
 		if (frm.doc.is_old_subcontracting_flow) {
-			frm.set_query("reserve_warehouse", "supplied_values", function() {
+			frm.set_query("reserve_house", "supplied_values", function() {
 				return {
 					filters: {
 						"Amazon": frm.doc.Amazon,
-						"name": ['!=', frm.doc.supplier_warehouse],
+						"name": ['!=', frm.doc.supplier_house],
 						"is_group": 0
 					}
 				}
@@ -101,8 +101,8 @@ frappe.ui.form.on("Purchase Order", {
 			frm.set_value('transaction_date', frappe.datetime.get_today())
 		}
 
-		erpnext.queries.setup_queries(frm, "Warehouse", function() {
-			return erpnext.queries.warehouse(frm.doc);
+		erpnext.queries.setup_queries(frm, "house", function() {
+			return erpnext.queries.house(frm.doc);
 		});
 
 		// On cancel and amending a purchase order with advance payment, reset advance paid amount
@@ -265,7 +265,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 
 		if(doc.docstatus == 1) {
 			this.frm.fields_dict.values_section.wrapper.addClass("hide-border");
-			if(!this.frm.doc.set_warehouse) {
+			if(!this.frm.doc.set_house) {
 				this.frm.fields_dict.values_section.wrapper.removeClass("hide-border");
 			}
 

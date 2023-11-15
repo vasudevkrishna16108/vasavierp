@@ -6,7 +6,7 @@ data = {
 		"Sales Invoice",
 		"Purchase Order",
 		"Accounts",
-		"Task",
+		"tasks",
 		"Todo",
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 1]],

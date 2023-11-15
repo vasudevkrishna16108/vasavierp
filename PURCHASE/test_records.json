@@ -25,7 +25,7 @@
     "schedule_date": "2013-03-01", 
     "stock_uom": "_Test UOM", 
     "uom": "_Test UOM", 
-    "warehouse": "_Test Warehouse - _TC"
+    "house": "_Test house - _TC"
    }
   ], 
   "supplier": "_Test Supplier", 
