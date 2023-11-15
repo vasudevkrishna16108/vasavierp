@@ -25,24 +25,24 @@ frappe.listview_settings['purchase orders'] = {
 	onload: function (listview) {
 		var method = "erpnext.buying.doctype.purchase_order.purchase_order.close_or_unclose_purchase_orders";
 
-		listview.page.add_menu_values(__("Close"), function () {
-			listview.call_for_selected_values(method, { "status": "Closed" });
+		listview.page.add_menu_value(__("Close"), function () {
+			listview.call_for_selected_value(method, { "status": "Closed" });
 		});
 
-		listview.page.add_menu_values(__("Reopen"), function () {
-			listview.call_for_selected_values(method, { "status": "Submitted" });
+		listview.page.add_menu_value(__("Reopen"), function () {
+			listview.call_for_selected_value(method, { "status": "Submitted" });
 		});
 
 
-		listview.page.add_action_values(__("Purchase Invoice"), ()=>{
+		listview.page.add_action_value(__("Purchase Invoice"), ()=>{
 			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Purchase Invoice");
 		});
 
-		listview.page.add_action_values(__("Purchase Receipt"), ()=>{
+		listview.page.add_action_value(__("Purchase Receipt"), ()=>{
 			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Purchase Receipt");
 		});
 
-		listview.page.add_action_values(__("Advance Payment"), ()=>{
+		listview.page.add_action_value(__("Advance Payment"), ()=>{
 			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Payment Entry");
 		});
 

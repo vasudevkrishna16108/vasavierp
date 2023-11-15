@@ -1,7 +1,7 @@
 data = {
 	"desktop_icons": [
 <<<<<<< HEAD
-		"values",
+		"value",
 		"Customer",
 =======
 		"items",
