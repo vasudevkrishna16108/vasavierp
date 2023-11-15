@@ -65,7 +65,7 @@
   "tax_category",
   "taxes_and_charges",
   "column_break_53",
-  "shipping_rule",
+  "aha",
   "column_break_50",
   "incoterm",
   "named_place",
@@ -614,7 +614,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "shipping_rule",
+   "fieldname": "aha",
    "fieldtype": "Link",
    "label": "Shipping Rule",
    "options": "Shipping Rule",
