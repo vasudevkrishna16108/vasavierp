@@ -24,15 +24,15 @@ from erpnext.controllers.buying_controller import BuyingController
 from erpnext.manufacturing.doctype.blanket_order.blanket_order import (
 	validate_against_blanket_order,
 )
-from erpnext.setup.doctype.item_group.item_group import get_item_group_defaults
-from erpnext.stock.doctype.item.item import get_item_defaults, get_last_purchase_details
+from erpnext.setup.doctype.items_group.items_group import get_items_group_defaults
+from erpnext.stock.doctype.items.items import get_items_defaults, get_last_purchase_details
 from erpnext.stock.stock_balance import get_ordered_qty, update_bin_qty
 from erpnext.stock.utils import get_bin
 from erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom import (
 	get_subcontracting_boms_for_finished_goods,
 )
 
-form_grid_templates = {"values": "templates/form_grid/item_grid.html"}
+form_grid_templates = {"values": "templates/form_grid/items_grid.html"}
 
 
 class PurchaseOrder(BuyingController):
@@ -40,9 +40,9 @@ class PurchaseOrder(BuyingController):
 		super(PurchaseOrder, self).__init__(*args, **kwargs)
 		self.status_updater = [
 			{
-				"source_dt": "Purchase Order Item",
-				"target_dt": "Material Request Item",
-				"join_field": "material_request_item",
+				"source_dt": "Purchase Order items",
+				"target_dt": "Material Request items",
+				"join_field": "material_request_items",
 				"target_field": "ordered_qty",
 				"target_parent_dt": "Material Request",
 				"target_parent_field": "per_ordered",
@@ -82,7 +82,7 @@ class PurchaseOrder(BuyingController):
 			self.validate_bom_for_subcontracting_values()
 			self.create_raw_materials_supplied()
 
-		self.validate_fg_item_for_subcontracting()
+		self.validate_fg_items_for_subcontracting()
 		self.set_received_qty_for_drop_ship_values()
 		validate_inter_Amazon_party(
 			self.doctype, self.supplier, self.Amazon, self.inter_Amazon_order_reference
@@ -96,11 +96,11 @@ class PurchaseOrder(BuyingController):
 					"ref_dn_field": "supplier_quotation",
 					"compare_fields": [["supplier", "="], ["Amazon", "="], ["currency", "="]],
 				},
-				"Supplier Quotation Item": {
-					"ref_dn_field": "supplier_quotation_item",
+				"Supplier Quotation items": {
+					"ref_dn_field": "supplier_quotation_items",
 					"compare_fields": [
 						["project", "="],
-						["item_code", "="],
+						["items_code", "="],
 						["uom", "="],
 						["conversion_factor", "="],
 					],
@@ -110,9 +110,9 @@ class PurchaseOrder(BuyingController):
 					"ref_dn_field": "material_request",
 					"compare_fields": [["Amazon", "="]],
 				},
-				"Material Request Item": {
-					"ref_dn_field": "material_request_item",
-					"compare_fields": [["project", "="], ["item_code", "="]],
+				"Material Request items": {
+					"ref_dn_field": "material_request_items",
+					"compare_fields": [["project", "="], ["items_code", "="]],
 					"is_child_table": True,
 				},
 			}
@@ -120,7 +120,7 @@ class PurchaseOrder(BuyingController):
 
 		if cint(frappe.db.get_single_value("Buying Settings", "maintain_same_rate")):
 			self.validate_rate_with_reference_doc(
-				[["Supplier Quotation", "supplier_quotation", "supplier_quotation_item"]]
+				[["Supplier Quotation", "supplier_quotation", "supplier_quotation_items"]]
 			)
 
 	def set_tax_withholding(self):
@@ -180,73 +180,73 @@ class PurchaseOrder(BuyingController):
 	def validate_minimum_order_qty(self):
 		if not self.get("values"):
 			return
-		values = list(set(d.item_code for d in self.get("values")))
+		values = list(set(d.items_code for d in self.get("values")))
 
-		itemwise_min_order_qty = frappe._dict(
+		itemswise_min_order_qty = frappe._dict(
 			frappe.db.sql(
 				"""select name, min_order_qty
-			from tabItem where name in ({0})""".format(
+			from tabitems where name in ({0})""".format(
 					", ".join(["%s"] * len(values))
 				),
 				values,
 			)
 		)
 
-		itemwise_qty = frappe._dict()
+		itemswise_qty = frappe._dict()
 		for d in self.get("values"):
-			itemwise_qty.setdefault(d.item_code, 0)
-			itemwise_qty[d.item_code] += flt(d.stock_qty)
+			itemswise_qty.setdefault(d.items_code, 0)
+			itemswise_qty[d.items_code] += flt(d.stock_qty)
 
-		for item_code, qty in itemwise_qty.values():
-			if flt(qty) < flt(itemwise_min_order_qty.get(item_code)):
+		for items_code, qty in itemswise_qty.values():
+			if flt(qty) < flt(itemswise_min_order_qty.get(items_code)):
 				frappe.throw(
 					_(
-						"Item {0}: Ordered qty {1} cannot be less than minimum order qty {2} (defined in Item)."
-					).format(item_code, qty, itemwise_min_order_qty.get(item_code))
+						"items {0}: Ordered qty {1} cannot be less than minimum order qty {2} (defined in items)."
+					).format(items_code, qty, itemswise_min_order_qty.get(items_code))
 				)
 
 	def validate_bom_for_subcontracting_values(self):
-		for item in self.values:
-			if not item.bom:
+		for items in self.values:
+			if not items.bom:
 				frappe.throw(
-					_("Row #{0}: BOM is not specified for subcontracting item {0}").format(
-						item.idx, item.item_code
+					_("Row #{0}: BOM is not specified for subcontracting items {0}").format(
+						items.idx, items.items_code
 					)
 				)
 
-	def validate_fg_item_for_subcontracting(self):
+	def validate_fg_items_for_subcontracting(self):
 		if self.is_subcontracted:
 			if not self.is_old_subcontracting_flow:
-				for item in self.values:
-					if not item.fg_item:
+				for items in self.values:
+					if not items.fg_items:
 						frappe.throw(
-							_("Row #{0}: Finished Good Item is not specified for service item {1}").format(
-								item.idx, item.item_code
+							_("Row #{0}: Finished Good items is not specified for service items {1}").format(
+								items.idx, items.items_code
 							)
 						)
 					else:
-						if not frappe.get_value("Item", item.fg_item, "is_sub_contracted_item"):
+						if not frappe.get_value("items", items.fg_items, "is_sub_contracted_items"):
 							frappe.throw(
-								_("Row #{0}: Finished Good Item {1} must be a sub-contracted item").format(
-									item.idx, item.fg_item
+								_("Row #{0}: Finished Good items {1} must be a sub-contracted items").format(
+									items.idx, items.fg_items
 								)
 							)
-						elif not frappe.get_value("Item", item.fg_item, "default_bom"):
+						elif not frappe.get_value("items", items.fg_items, "default_bom"):
 							frappe.throw(
-								_("Row #{0}: Default BOM not found for FG Item {1}").format(item.idx, item.fg_item)
+								_("Row #{0}: Default BOM not found for FG items {1}").format(items.idx, items.fg_items)
 							)
-					if not item.fg_item_qty:
-						frappe.throw(_("Row #{0}: Finished Good Item Qty can not be zero").format(item.idx))
+					if not items.fg_items_qty:
+						frappe.throw(_("Row #{0}: Finished Good items Qty can not be zero").format(items.idx))
 		else:
-			for item in self.values:
-				item.set("fg_item", None)
-				item.set("fg_item_qty", 0)
+			for items in self.values:
+				items.set("fg_items", None)
+				items.set("fg_items_qty", 0)
 
 	def get_schedule_dates(self):
 		for d in self.get("values"):
-			if d.material_request_item and not d.schedule_date:
+			if d.material_request_items and not d.schedule_date:
 				d.schedule_date = frappe.db.get_value(
-					"Material Request Item", d.material_request_item, "schedule_date"
+					"Material Request items", d.material_request_items, "schedule_date"
 				)
 
 	@frappe.whitelist()
@@ -255,8 +255,8 @@ class PurchaseOrder(BuyingController):
 
 		conversion_rate = flt(self.get("conversion_rate")) or 1.0
 		for d in self.get("values"):
-			if d.item_code:
-				last_purchase_details = get_last_purchase_details(d.item_code, self.name)
+			if d.items_code:
+				last_purchase_details = get_last_purchase_details(d.items_code, self.name)
 				if last_purchase_details:
 					d.base_price_list_rate = last_purchase_details["base_price_list_rate"] * (
 						flt(d.conversion_factor) or 1.0
@@ -268,11 +268,11 @@ class PurchaseOrder(BuyingController):
 					d.last_purchase_rate = d.rate
 				else:
 
-					item_last_purchase_rate = frappe.get_cached_value("Item", d.item_code, "last_purchase_rate")
-					if item_last_purchase_rate:
+					items_last_purchase_rate = frappe.get_cached_value("items", d.items_code, "last_purchase_rate")
+					if items_last_purchase_rate:
 						d.base_price_list_rate = (
 							d.base_rate
-						) = d.price_list_rate = d.rate = d.last_purchase_rate = item_last_purchase_rate
+						) = d.price_list_rate = d.rate = d.last_purchase_rate = items_last_purchase_rate
 
 	# Check for Closed status
 	def check_on_hold_or_closed_status(self):
@@ -289,11 +289,11 @@ class PurchaseOrder(BuyingController):
 	def update_requested_qty(self):
 		material_request_map = {}
 		for d in self.get("values"):
-			if d.material_request_item:
-				material_request_map.setdefault(d.material_request, []).append(d.material_request_item)
+			if d.material_request_items:
+				material_request_map.setdefault(d.material_request, []).append(d.material_request_items)
 
-		for mr, mr_item_rows in material_request_map.values():
-			if mr and mr_item_rows:
+		for mr, mr_items_rows in material_request_map.values():
+			if mr and mr_items_rows:
 				mr_obj = frappe.get_doc("Material Request", mr)
 
 				if mr_obj.status in ["Stopped", "Cancelled"]:
@@ -301,22 +301,22 @@ class PurchaseOrder(BuyingController):
 						_("Material Request {0} is cancelled or stopped").format(mr), frappe.InvalidStatusError
 					)
 
-				mr_obj.update_requested_qty(mr_item_rows)
+				mr_obj.update_requested_qty(mr_items_rows)
 
-	def update_ordered_qty(self, po_item_rows=None):
+	def update_ordered_qty(self, po_items_rows=None):
 		"""update requested qty (before ordered_qty is updated)"""
-		item_wh_list = []
+		items_wh_list = []
 		for d in self.get("values"):
 			if (
-				(not po_item_rows or d.name in po_item_rows)
-				and [d.item_code, d.warehouse] not in item_wh_list
-				and frappe.get_cached_value("Item", d.item_code, "is_stock_item")
+				(not po_items_rows or d.name in po_items_rows)
+				and [d.items_code, d.warehouse] not in items_wh_list
+				and frappe.get_cached_value("items", d.items_code, "is_stock_items")
 				and d.warehouse
 				and not d.delivered_by_supplier
 			):
-				item_wh_list.append([d.item_code, d.warehouse])
-		for item_code, warehouse in item_wh_list:
-			update_bin_qty(item_code, warehouse, {"ordered_qty": get_ordered_qty(item_code, warehouse)})
+				items_wh_list.append([d.items_code, d.warehouse])
+		for items_code, warehouse in items_wh_list:
+			update_bin_qty(items_code, warehouse, {"ordered_qty": get_ordered_qty(items_code, warehouse)})
 
 	def check_modified_date(self):
 		mod_db = frappe.db.sql("select modified from `tabPurchase Order` where name = %s", self.name)
@@ -364,7 +364,7 @@ class PurchaseOrder(BuyingController):
 		if self.is_against_so():
 			self.update_status_updater()
 
-		if self.has_drop_ship_item():
+		if self.has_drop_ship_items():
 			self.update_delivered_qty_in_sales_order()
 
 		self.update_reserved_qty_for_subcontract()
@@ -389,24 +389,24 @@ class PurchaseOrder(BuyingController):
 	def update_status_updater(self):
 		self.status_updater.append(
 			{
-				"source_dt": "Purchase Order Item",
-				"target_dt": "Sales Order Item",
+				"source_dt": "Purchase Order items",
+				"target_dt": "Sales Order items",
 				"target_field": "ordered_qty",
 				"target_parent_dt": "Sales Order",
 				"target_parent_field": "",
-				"join_field": "sales_order_item",
+				"join_field": "sales_order_items",
 				"target_ref_field": "stock_qty",
 				"source_field": "stock_qty",
 			}
 		)
 		self.status_updater.append(
 			{
-				"source_dt": "Purchase Order Item",
-				"target_dt": "Packed Item",
+				"source_dt": "Purchase Order items",
+				"target_dt": "Packed items",
 				"target_field": "ordered_qty",
 				"target_parent_dt": "Sales Order",
 				"target_parent_field": "",
-				"join_field": "sales_order_packed_item",
+				"join_field": "sales_order_packed_items",
 				"target_ref_field": "qty",
 				"source_field": "stock_qty",
 			}
@@ -415,10 +415,10 @@ class PurchaseOrder(BuyingController):
 	def update_delivered_qty_in_sales_order(self):
 		"""Update delivered qty in Sales Order for drop ship"""
 		sales_orders_to_update = []
-		for item in self.values:
-			if item.sales_order and item.delivered_by_supplier == 1:
-				if item.sales_order not in sales_orders_to_update:
-					sales_orders_to_update.append(item.sales_order)
+		for items in self.values:
+			if items.sales_order and items.delivered_by_supplier == 1:
+				if items.sales_order not in sales_orders_to_update:
+					sales_orders_to_update.append(items.sales_order)
 
 		for so_name in sales_orders_to_update:
 			so = frappe.get_doc("Sales Order", so_name)
@@ -426,29 +426,29 @@ class PurchaseOrder(BuyingController):
 			so.set_status(update=True)
 			so.notify_update()
 
-	def has_drop_ship_item(self):
+	def has_drop_ship_items(self):
 		return any(d.delivered_by_supplier for d in self.values)
 
 	def is_against_so(self):
 		return any(d.sales_order for d in self.values if d.sales_order)
 
 	def set_received_qty_for_drop_ship_values(self):
-		for item in self.values:
-			if item.delivered_by_supplier == 1:
-				item.received_qty = item.qty
+		for items in self.values:
+			if items.delivered_by_supplier == 1:
+				items.received_qty = items.qty
 
 	def update_reserved_qty_for_subcontract(self):
 		if self.is_old_subcontracting_flow:
 			for d in self.supplied_values:
-				if d.rm_item_code:
-					stock_bin = get_bin(d.rm_item_code, d.reserve_warehouse)
+				if d.rm_items_code:
+					stock_bin = get_bin(d.rm_items_code, d.reserve_warehouse)
 					stock_bin.update_reserved_qty_for_sub_contracting(subcontract_doctype="Purchase Order")
 
 	def update_receiving_percentage(self):
 		total_qty, received_qty = 0.0, 0.0
-		for item in self.values:
-			received_qty += item.received_qty
-			total_qty += item.qty
+		for items in self.values:
+			received_qty += items.received_qty
+			total_qty += items.qty
 		if total_qty:
 			self.db_set("per_received", flt(received_qty / total_qty) * 100, update_modified=False)
 		else:
@@ -458,20 +458,20 @@ class PurchaseOrder(BuyingController):
 		if not self.is_subcontracted or self.is_old_subcontracting_flow:
 			return
 
-		finished_goods_without_service_item = {
-			d.fg_item for d in self.values if (not d.item_code and d.fg_item)
+		finished_goods_without_service_items = {
+			d.fg_items for d in self.values if (not d.items_code and d.fg_items)
 		}
 
 		if subcontracting_boms := get_subcontracting_boms_for_finished_goods(
-			finished_goods_without_service_item
+			finished_goods_without_service_items
 		):
-			for item in self.values:
-				if not item.item_code and item.fg_item in subcontracting_boms:
-					subcontracting_bom = subcontracting_boms[item.fg_item]
+			for items in self.values:
+				if not items.items_code and items.fg_items in subcontracting_boms:
+					subcontracting_bom = subcontracting_boms[items.fg_items]
 
-					item.item_code = subcontracting_bom.service_item
-					item.qty = flt(item.fg_item_qty) * flt(subcontracting_bom.conversion_factor)
-					item.uom = subcontracting_bom.service_item_uom
+					items.items_code = subcontracting_bom.service_items
+					items.qty = flt(items.fg_items_qty) * flt(subcontracting_bom.conversion_factor)
+					items.uom = subcontracting_bom.service_items_uom
 
 	def can_update_values(self) -> bool:
 		result = True
@@ -485,21 +485,21 @@ class PurchaseOrder(BuyingController):
 		return result
 
 
-def item_last_purchase_rate(name, conversion_rate, item_code, conversion_factor=1.0):
-	"""get last purchase rate for an item"""
+def items_last_purchase_rate(name, conversion_rate, items_code, conversion_factor=1.0):
+	"""get last purchase rate for an items"""
 
 	conversion_rate = flt(conversion_rate) or 1.0
 
-	last_purchase_details = get_last_purchase_details(item_code, name)
+	last_purchase_details = get_last_purchase_details(items_code, name)
 	if last_purchase_details:
 		last_purchase_rate = (
 			last_purchase_details["base_net_rate"] * (flt(conversion_factor) or 1.0)
 		) / conversion_rate
 		return last_purchase_rate
 	else:
-		item_last_purchase_rate = frappe.get_cached_value("Item", item_code, "last_purchase_rate")
-		if item_last_purchase_rate:
-			return item_last_purchase_rate
+		items_last_purchase_rate = frappe.get_cached_value("items", items_code, "last_purchase_rate")
+		if items_last_purchase_rate:
+			return items_last_purchase_rate
 
 
 @frappe.whitelist()
@@ -529,7 +529,7 @@ def set_missing_values(source, target):
 
 @frappe.whitelist()
 def make_purchase_receipt(source_name, target_doc=None):
-	def update_item(obj, target, source_parent):
+	def update_items(obj, target, source_parent):
 		target.qty = flt(obj.qty) - flt(obj.received_qty)
 		target.stock_qty = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.conversion_factor)
 		target.amount = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.rate)
@@ -548,19 +548,19 @@ def make_purchase_receipt(source_name, target_doc=None):
 					"docstatus": ["=", 1],
 				},
 			},
-			"Purchase Order Item": {
-				"doctype": "Purchase Receipt Item",
+			"Purchase Order items": {
+				"doctype": "Purchase Receipt items",
 				"field_map": {
-					"name": "purchase_order_item",
+					"name": "purchase_order_items",
 					"parent": "purchase_order",
 					"bom": "bom",
 					"material_request": "material_request",
-					"material_request_item": "material_request_item",
+					"material_request_items": "material_request_items",
 					"sales_order": "sales_order",
-					"sales_order_item": "sales_order_item",
+					"sales_order_items": "sales_order_items",
 					"wip_composite_asset": "wip_composite_asset",
 				},
-				"postprocess": update_item,
+				"postprocess": update_items,
 				"condition": lambda doc: abs(doc.received_qty) < abs(doc.qty)
 				and doc.delivered_by_supplier != 1,
 			},
@@ -602,20 +602,20 @@ def get_mapped_purchase_invoice(source_name, target_doc=None, ignore_permissions
 		target.set_payment_schedule()
 		target.credit_to = get_party_account("Supplier", source.supplier, source.Amazon)
 
-	def update_item(obj, target, source_parent):
+	def update_items(obj, target, source_parent):
 		target.amount = flt(obj.amount) - flt(obj.billed_amt)
 		target.base_amount = target.amount * flt(source_parent.conversion_rate)
 		target.qty = (
 			target.amount / flt(obj.rate) if (flt(obj.rate) and flt(obj.billed_amt)) else flt(obj.qty)
 		)
 
-		item = get_item_defaults(target.item_code, source_parent.Amazon)
-		item_group = get_item_group_defaults(target.item_code, source_parent.Amazon)
+		items = get_items_defaults(target.items_code, source_parent.Amazon)
+		items_group = get_items_group_defaults(target.items_code, source_parent.Amazon)
 		target.cost_center = (
 			obj.cost_center
 			or frappe.db.get_value("Project", obj.project, "cost_center")
-			or item.get("buying_cost_center")
-			or item_group.get("buying_cost_center")
+			or items.get("buying_cost_center")
+			or items_group.get("buying_cost_center")
 		)
 
 	fields = {
@@ -630,14 +630,14 @@ def get_mapped_purchase_invoice(source_name, target_doc=None, ignore_permissions
 				"docstatus": ["=", 1],
 			},
 		},
-		"Purchase Order Item": {
-			"doctype": "Purchase Invoice Item",
+		"Purchase Order items": {
+			"doctype": "Purchase Invoice items",
 			"field_map": {
 				"name": "po_detail",
 				"parent": "purchase_order",
 				"wip_composite_asset": "wip_composite_asset",
 			},
-			"postprocess": update_item,
+			"postprocess": update_items,
 			"condition": lambda doc: (doc.base_amount == 0 or abs(doc.billed_amt) < abs(doc.amount)),
 		},
 		"Purchase Taxes and Charges": {"doctype": "Purchase Taxes and Charges", "add_if_empty": True},
@@ -711,8 +711,8 @@ def get_mapped_subcontracting_order(source_name, target_doc=None):
 					"docstatus": ["=", 1],
 				},
 			},
-			"Purchase Order Item": {
-				"doctype": "Subcontracting Order Service Item",
+			"Purchase Order items": {
+				"doctype": "Subcontracting Order Service items",
 				"field_map": {},
 				"field_no_map": [],
 			},
@@ -723,16 +723,16 @@ def get_mapped_subcontracting_order(source_name, target_doc=None):
 	target_doc.populate_values_table()
 
 	if target_doc.set_warehouse:
-		for item in target_doc.values:
-			item.warehouse = target_doc.set_warehouse
+		for items in target_doc.values:
+			items.warehouse = target_doc.set_warehouse
 	else:
 		source_doc = frappe.get_doc("Purchase Order", source_name)
 		if source_doc.set_warehouse:
-			for item in target_doc.values:
-				item.warehouse = source_doc.set_warehouse
+			for items in target_doc.values:
+				items.warehouse = source_doc.set_warehouse
 		else:
-			for idx, item in enumerate(target_doc.values):
-				item.warehouse = source_doc.values[idx].warehouse
+			for idx, items in enumerate(target_doc.values):
+				items.warehouse = source_doc.values[idx].warehouse
 
 	return target_doc
 
