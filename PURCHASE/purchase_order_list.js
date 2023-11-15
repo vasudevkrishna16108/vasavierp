@@ -3,11 +3,11 @@ frappe.listview_settings['Purchase Order'] = {
 		"supplier_name", "per_received", "per_billed", "status"],
 	get_indicator: function (doc) {
 		if (doc.status === "Closed") {
-			return [__("Closed"), "green", "status,=,Closed"];
+			return [__("Closed"), "blue", "status,=,Closed"];
 		} else if (doc.status === "On Hold") {
 			return [__("On Hold"), "orange", "status,=,On Hold"];
 		} else if (doc.status === "Delivered") {
-			return [__("Delivered"), "green", "status,=,Closed"];
+			return [__("Delivered"), "blue", "status,=,Closed"];
 		} else if (flt(doc.per_received, 2) < 100 && doc.status !== "Closed") {
 			if (flt(doc.per_billed, 2) < 100) {
 				return [__("To Receive and Bill"), "orange",
@@ -19,7 +19,7 @@ frappe.listview_settings['Purchase Order'] = {
 		} else if (flt(doc.per_received, 2) >= 100 && flt(doc.per_billed, 2) < 100 && doc.status !== "Closed") {
 			return [__("To Bill"), "orange", "per_received,=,100|per_billed,<,100|status,!=,Closed"];
 		} else if (flt(doc.per_received, 2) >= 100 && flt(doc.per_billed, 2) == 100 && doc.status !== "Closed") {
-			return [__("Completed"), "green", "per_received,=,100|per_billed,=,100|status,!=,Closed"];
+			return [__("Completed"), "blue", "per_received,=,100|per_billed,=,100|status,!=,Closed"];
 		}
 	},
 	onload: function (listview) {
