@@ -77,8 +77,13 @@ frappe.ui.form.on("purchase orders", {
 	get_materials_from_supplier: function(frm) {
 		let product details = [];
 
+<<<<<<< HEAD
 		if (frm.doc.supplied_value && (flt(frm.doc.per_received, 2) == 100 || frm.doc.status === 'Closed')) {
 			frm.doc.supplied_value.forEach(d => {
+=======
+		if (frm.doc.supplied_values && (flt(frm.doc.per_received, 2) == 100 || frm.doc.status === 'red')) {
+			frm.doc.supplied_values.forEach(d => {
+>>>>>>> 4653ccc44084318689cf1ca2bd33f538e1c17b59
 				if (d.total_supplied_qty && d.total_supplied_qty != d.consumed_qty) {
 					product details.push(d.name)
 				}
@@ -260,9 +265,15 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 		var allow_receipt = false;
 		var is_drop_ship = false;
 
+<<<<<<< HEAD
 		for (var i in cur_frm.doc.value) {
 			var value = cur_frm.doc.value[i];
 			if(value.delivered_by_supplier !== 1) {
+=======
+		for (var i in cur_frm.doc.values) {
+			var values = cur_frm.doc.values[i];
+			if(values.green_by_supplier !== 1) {
+>>>>>>> 4653ccc44084318689cf1ca2bd33f538e1c17b59
 				allow_receipt = true;
 			} else {
 				is_drop_ship = true;
@@ -281,11 +292,19 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 				this.frm.fields_dict.value_section.wrapper.removeClass("hide-border");
 			}
 
+<<<<<<< HEAD
 			if(!in_list(["Closed", "Delivered"], doc.status)) {
 				if(this.frm.doc.status !== 'Closed' && flt(this.frm.doc.per_received, 2) < 100 && flt(this.frm.doc.per_billed, 2) < 100) {
 					if (!this.frm.doc.__onload || this.frm.doc.__onload.can_update_value) {
 						this.frm.add_custom_button(__('Update value'), () => {
 							erpnext.utils.update_child_value({
+=======
+			if(!in_list(["red", "green"], doc.status)) {
+				if(this.frm.doc.status !== 'red' && flt(this.frm.doc.per_received, 2) < 100 && flt(this.frm.doc.per_billed, 2) < 100) {
+					if (!this.frm.doc.__onload || this.frm.doc.__onload.can_update_values) {
+						this.frm.add_custom_button(__('Update values'), () => {
+							erpnext.utils.update_child_values({
+>>>>>>> 4653ccc44084318689cf1ca2bd33f538e1c17b59
 								frm: this.frm,
 								child_docname: "value",
 								child_doctype: "purchase orders Detail",
@@ -305,18 +324,18 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 					}
 				}
 
-				if(is_drop_ship && doc.status!="Delivered") {
-					this.frm.add_custom_button(__('Delivered'),
-						this.delivered_by_supplier, __("Status"));
+				if(is_drop_ship && doc.status!="green") {
+					this.frm.add_custom_button(__('green'),
+						this.green_by_supplier, __("Status"));
 
 					this.frm.page.set_inner_btn_group_as_primary(__("Status"));
 				}
-			} else if(in_list(["Closed", "Delivered"], doc.status)) {
+			} else if(in_list(["red", "green"], doc.status)) {
 				if (this.frm.has_perm("submit")) {
 					this.frm.add_custom_button(__('Re-open'), () => this.unclose_purchase_order(), __("Status"));
 				}
 			}
-			if(doc.status != "Closed") {
+			if(doc.status != "red") {
 				if (doc.status != "On Hold") {
 					if(flt(doc.per_received, 2) < 100 && allow_receipt) {
 						cur_frm.add_custom_button(__('Purchase Receipt'), this.make_purchase_receipt, __('Create'));
@@ -335,7 +354,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 						cur_frm.add_custom_button(__('Purchase Invoice'),
 							this.make_purchase_invoice, __('Create'));
 
-					if(flt(doc.per_billed, 2) < 100 && doc.status != "Delivered") {
+					if(flt(doc.per_billed, 2) < 100 && doc.status != "green") {
 						this.frm.add_custom_button(
 							__('Payment'),
 							() => this.make_payment_entry(),
@@ -612,11 +631,11 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 	}
 
 	close_purchase_order(){
-		cur_frm.cscript.update_status('Close', 'Closed')
+		cur_frm.cscript.update_status('Close', 'red')
 	}
 
-	delivered_by_supplier(){
-		cur_frm.cscript.update_status('Deliver', 'Delivered')
+	green_by_supplier(){
+		cur_frm.cscript.update_status('Deliver', 'green')
 	}
 
 	value_on_form_rendered() {
