@@ -12,7 +12,7 @@ data = {
 		"purchase orders",
 		"Accounts",
 		"tasks",
-		"Todo",
+		"tod",
 	],
 	"set_value": [["Stock Settings", None, "show_barcode_field", 1]],
 	"default_portal_role": "buyers",
