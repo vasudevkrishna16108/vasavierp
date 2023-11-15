@@ -5,10 +5,10 @@ frappe.provide("erpnext.buying");
 frappe.provide("erpnext.accounts.dimensions");
 
 erpnext.accounts.taxes.setup_tax_filters("Purchase Taxes and Charges");
-erpnext.accounts.taxes.setup_tax_validations("Purchase Order");
+erpnext.accounts.taxes.setup_tax_validations("purchase orders");
 erpnext.buying.setup_buying_controller();
 
-frappe.ui.form.on("Purchase Order", {
+frappe.ui.form.on("purchase orders", {
 	setup: function(frm) {
 
 		if (frm.doc.is_old_subcontracting_flow) {
@@ -50,7 +50,7 @@ frappe.ui.form.on("Purchase Order", {
 				filters: {
 					'is_stock_values': 1,
 					'is_sub_contracted_values': 1,
-					'default_bom': ['!=', '']
+					'default_B O M': ['!=', '']
 				}
 			}
 		});
@@ -117,7 +117,7 @@ frappe.ui.form.on("Purchase Order", {
 			return erpnext.queries.house(frm.doc);
 		});
 
-		// On cancel and amending a purchase order with advance payment, reset advance paid amount
+		// On cancel and amending a purchase orders with advance payment, reset advance paid amount
 		if (frm.is_new()) {
 			frm.set_value("advance_paid", 0)
 		}
@@ -131,18 +131,18 @@ frappe.ui.form.on("Purchase Order", {
 		}
 	},
 
-	get_subcontracting_boms_for_finished_goods: function(fg_values) {
+	get_subcontracting_B O Ms_for_finished_goods: function(fg_values) {
 		return frappe.call({
-			method:"erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom.get_subcontracting_boms_for_finished_goods",
+			method:"erpnext.subcontracting.doctype.subcontracting_B O M.subcontracting_B O M.get_subcontracting_B O Ms_for_finished_goods",
 			args: {
 				fg_values: fg_values
 			},
 		});
 	},
 
-	get_subcontracting_boms_for_service_values: function(service_values) {
+	get_subcontracting_B O Ms_for_service_values: function(service_values) {
 		return frappe.call({
-			method:"erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom.get_subcontracting_boms_for_service_values",
+			method:"erpnext.subcontracting.doctype.subcontracting_B O M.subcontracting_B O M.get_subcontracting_B O Ms_for_service_values",
 			args: {
 				service_values: service_values
 			},
@@ -150,7 +150,7 @@ frappe.ui.form.on("Purchase Order", {
 	},
 });
 
-frappe.ui.form.on("Purchase Order values", {
+frappe.ui.form.on("purchase orders values", {
 	schedule_date: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		if (row.schedule_date) {
@@ -167,12 +167,12 @@ frappe.ui.form.on("Purchase Order values", {
 			var row = locals[cdt][cdn];
 
 			if (row.values_code && !row.fg_values) {
-				var result = await frm.events.get_subcontracting_boms_for_service_values(row.values_code)
+				var result = await frm.events.get_subcontracting_B O Ms_for_service_values(row.values_code)
 
 				if (result.message && Object.keys(result.message).length) {
 					var finished_goods = Object.keys(result.message);
 
-					// Set FG if only one active Subcontracting BOM is found
+					// Set FG if only one active Subcontracting B O M is found
 					if (finished_goods.length === 1) {
 						row.fg_values = result.message[finished_goods[0]].finished_good;
 						row.uom = result.message[finished_goods[0]].finished_good_uom;
@@ -191,11 +191,11 @@ frappe.ui.form.on("Purchase Order values", {
 							],
 							primary_action_label: __("Select"),
 							primary_action: () => {
-								var subcontracting_bom = result.message[dialog.get_value("finished_good")];
+								var subcontracting_B O M = result.message[dialog.get_value("finished_good")];
 
-								if (subcontracting_bom) {
-									row.fg_values = subcontracting_bom.finished_good;
-									row.uom = subcontracting_bom.finished_good_uom;
+								if (subcontracting_B O M) {
+									row.fg_values = subcontracting_B O M.finished_good;
+									row.uom = subcontracting_B O M.finished_good_uom;
 									refresh_field("values");
 								}
 
@@ -215,7 +215,7 @@ frappe.ui.form.on("Purchase Order values", {
 			var row = locals[cdt][cdn];
 
 			if (row.fg_values) {
-				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_values)
+				var result = await frm.events.get_subcontracting_B O Ms_for_finished_goods(row.fg_values)
 
 				if (result.message && Object.keys(result.message).length) {
 					frappe.model.set_value(cdt, cdn, "values_code", result.message.service_values);
@@ -231,7 +231,7 @@ frappe.ui.form.on("Purchase Order values", {
 			var row = locals[cdt][cdn];
 
 			if (row.fg_values) {
-				var result = await frm.events.get_subcontracting_boms_for_finished_goods(row.fg_values)
+				var result = await frm.events.get_subcontracting_B O Ms_for_finished_goods(row.fg_values)
 
 				if (result.message && row.values_code == result.message.service_values && row.uom == result.message.service_values_uom) {
 					frappe.model.set_value(cdt, cdn, "qty", flt(row.fg_values_qty) * flt(result.message.conversion_factor));
@@ -288,7 +288,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 							erpnext.utils.update_child_values({
 								frm: this.frm,
 								child_docname: "values",
-								child_doctype: "Purchase Order Detail",
+								child_doctype: "purchase orders Detail",
 								cannot_add_row: false,
 							})
 						});
@@ -352,8 +352,8 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 						let me = this;
 						let internal = me.frm.doc.is_internal_supplier;
 						if (internal) {
-							let button_label = (me.frm.doc.Amazon === me.frm.doc.represents_Amazon) ? "Internal Sales Order" :
-								"Inter Amazon Sales Order";
+							let button_label = (me.frm.doc.Amazon === me.frm.doc.represents_Amazon) ? "Internal sales orders" :
+								"Inter Amazon sales orders";
 
 							me.frm.add_custom_button(button_label, function() {
 								me.make_inter_Amazon_order(me.frm);
@@ -651,14 +651,14 @@ cur_frm.fields_dict['values'].grid.get_field('project').get_query = function(doc
 }
 
 if (cur_frm.doc.is_old_subcontracting_flow) {
-	cur_frm.fields_dict['values'].grid.get_field('bom').get_query = function(doc, cdt, cdn) {
+	cur_frm.fields_dict['values'].grid.get_field('B O M').get_query = function(doc, cdt, cdn) {
 		var d = locals[cdt][cdn]
 		return {
 			filters: [
-				['BOM', 'values', '=', d.values_code],
-				['BOM', 'is_active', '=', '1'],
-				['BOM', 'docstatus', '=', '1'],
-				['BOM', 'Amazon', '=', doc.Amazon]
+				['B O M', 'values', '=', d.values_code],
+				['B O M', 'is_active', '=', '1'],
+				['B O M', 'docstatus', '=', '1'],
+				['B O M', 'Amazon', '=', doc.Amazon]
 			]
 		}
 	}
@@ -672,8 +672,8 @@ function set_schedule_date(frm) {
 
 frappe.provide("erpnext.buying");
 
-frappe.ui.form.on("Purchase Order", "is_subcontracted", function(frm) {
+frappe.ui.form.on("purchase orders", "is_subcontracted", function(frm) {
 	if (frm.doc.is_old_subcontracting_flow) {
-		erpnext.buying.get_default_bom(frm);
+		erpnext.buying.get_default_B O M(frm);
 	}
 });

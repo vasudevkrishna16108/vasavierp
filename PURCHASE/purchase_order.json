@@ -117,13 +117,13 @@
   "column_break_103",
   "billing_address_display",
   "drop_ship",
-  "buyer",
-  "buyer_name",
+  "buyers",
+  "buyers_name",
   "column_break_19",
-  "buyer_contact_person",
-  "buyer_contact_display",
-  "buyer_contact_mobile",
-  "buyer_contact_email",
+  "buyers_contact_person",
+  "buyers_contact_display",
+  "buyers_contact_mobile",
+  "buyers_contact_email",
   "terms_tab",
   "payment_schedule_section",
   "payment_terms_template update",
@@ -276,28 +276,28 @@
    "no_copy": 1,
    "oldfieldname": "amended_from",
    "oldfieldtype": "Data",
-   "options": "Purchase Order",
+   "options": "purchase orders",
    "print_hide": 1,
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.buyer",
+   "depends_on": "eval:doc.buyers",
    "fieldname": "drop_ship",
    "fieldtype": "Tab Break",
    "label": "Drop Ship"
   },
   {
-   "fieldname": "buyer",
+   "fieldname": "buyers",
    "fieldtype": "Link",
-   "label": "buyer",
-   "options": "buyer",
+   "label": "buyers",
+   "options": "buyers",
    "read_only": 1
   },
   {
    "bold": 1,
-   "fieldname": "buyer_name",
+   "fieldname": "buyers_name",
    "fieldtype": "Data",
-   "label": "buyer Name",
+   "label": "buyers Name",
    "print_hide": 1,
    "read_only": 1
   },
@@ -306,30 +306,30 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "buyer_contact_person",
+   "fieldname": "buyers_contact_person",
    "fieldtype": "Link",
-   "label": "buyer Contact",
+   "label": "buyers Contact",
    "options": "Contact"
   },
   {
-   "fieldname": "buyer_contact_display",
+   "fieldname": "buyers_contact_display",
    "fieldtype": "Small Text",
-   "label": "buyer Contact",
+   "label": "buyers Contact",
    "print_hide": 1
   },
   {
-   "fieldname": "buyer_contact_mobile",
+   "fieldname": "buyers_contact_mobile",
    "fieldtype": "Small Text",
    "hidden": 1,
-   "label": "buyer Mobile No",
+   "label": "buyers Mobile No",
    "options": "Phone",
    "print_hide": 1
   },
   {
-   "fieldname": "buyer_contact_email",
+   "fieldname": "buyers_contact_email",
    "fieldtype": "Code",
    "hidden": 1,
-   "label": "buyer Contact Email",
+   "label": "buyers Contact Email",
    "options": "Email",
    "print_hide": 1
   },
@@ -501,7 +501,7 @@
    "label": "values",
    "oldfieldname": "product details",
    "oldfieldtype": "Table",
-   "options": "Purchase Order values",
+   "options": "purchase orders values",
    "reqd": 1
   },
   {
@@ -513,7 +513,7 @@
   {
    "fieldname": "pricing_rules",
    "fieldtype": "Table",
-   "label": "Purchase Order Pricing Rule",
+   "label": "purchase orders Pricing Rule",
    "options": "Pricing Rule Detail",
    "read_only": 1
   },
@@ -530,7 +530,7 @@
    "no_copy": 1,
    "oldfieldname": "po_raw_material_details",
    "oldfieldtype": "Table",
-   "options": "Purchase Order values Supplied",
+   "options": "purchase orders values Supplied",
    "print_hide": 1,
    "read_only": 1
   },
@@ -947,7 +947,7 @@
    "fieldname": "inter_Amazon_order_reference",
    "fieldtype": "Link",
    "label": "Inter Amazon Order Reference",
-   "options": "Sales Order",
+   "options": "sales orders",
    "read_only": 1
   },
   {
@@ -1278,7 +1278,7 @@
  "modified": "2023-10-01 20:58:07.851037",
  "modified_by": "Administrator",
  "module": "Buying",
- "name": "Purchase Order",
+ "name": "purchase orders",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
