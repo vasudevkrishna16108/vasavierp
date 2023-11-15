@@ -1,7 +1,7 @@
 data = {
 	"desktop_icons": [
 		"POS",
-		"items",
+		"values",
 		"Customer",
 		"Sales Invoice",
 		"Purchase Order",

@@ -203,7 +203,7 @@
    "search_index": 1
   },
   {
-   "depends_on": "eval:doc.supplier && doc.docstatus===0 && (!(doc.values && doc.values.length) || (doc.values.length==1 && !doc.values[0].items_code))",
+   "depends_on": "eval:doc.supplier && doc.docstatus===0 && (!(doc.values && doc.values.length) || (doc.values.length==1 && !doc.values[0].values_code))",
    "description": "Fetch values based on Default Supplier.",
    "fieldname": "get_values_from_open_material_requests",
    "fieldtype": "Button",
@@ -501,7 +501,7 @@
    "label": "values",
    "oldfieldname": "product details",
    "oldfieldtype": "Table",
-   "options": "Purchase Order items",
+   "options": "Purchase Order values",
    "reqd": 1
   },
   {
@@ -530,7 +530,7 @@
    "no_copy": 1,
    "oldfieldname": "po_raw_material_details",
    "oldfieldtype": "Table",
-   "options": "Purchase Order items Supplied",
+   "options": "Purchase Order values Supplied",
    "print_hide": 1,
    "read_only": 1
   },
