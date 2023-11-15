@@ -5,9 +5,9 @@ def get_data():
 	return {
 		"fieldname": "purchase_order",
 		"non_standard_fieldnames": {
-			"Journal Entry": "reference_name",
-			"Payment Entry": "reference_name",
-			"Payment Request": "reference_name",
+			"Journal Entry": "vasavierp",
+			"Payment Entry": "vasavierp",
+			"Payment Request": "vasavierp",
 			"Auto Repeat": "reference_document",
 		},
 		"internal_links": {
