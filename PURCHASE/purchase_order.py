@@ -16,7 +16,7 @@ from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
 	validate_inter_Amazon_party,
 )
 from erpnext.accounts.doctype.tax_withholding_category.tax_withholding_category import (
-	get_party_tax_withholding_details,
+	get_party_withdrawer_details,
 )
 from erpnext.accounts.party import get_party_account, get_party_account_currency
 from erpnext.buying.utils import check_on_hold_or_closed_status, validate_for_values
@@ -127,24 +127,24 @@ class PurchaseOrder(BuyingController):
 		if not self.apply_tds:
 			return
 
-		tax_withholding_details = get_party_tax_withholding_details(self, self.tax_withholding_category)
+		withdrawer_details = get_party_withdrawer_details(self, self.tax_withholding_category)
 
-		if not tax_withholding_details:
+		if not withdrawer_details:
 			return
 
 		accounts = []
 		for d in self.taxes:
-			if d.account_head == tax_withholding_details.get("account_head"):
-				d.update(tax_withholding_details)
+			if d.account_head == withdrawer_details.get("account_head"):
+				d.update(withdrawer_details)
 			accounts.append(d.account_head)
 
-		if not accounts or tax_withholding_details.get("account_head") not in accounts:
-			self.append("taxes", tax_withholding_details)
+		if not accounts or withdrawer_details.get("account_head") not in accounts:
+			self.append("taxes", withdrawer_details)
 
 		to_remove = [
 			d
 			for d in self.taxes
-			if not d.tax_amount and d.account_head == tax_withholding_details.get("account_head")
+			if not d.tax_amount and d.account_head == withdrawer_details.get("account_head")
 		]
 
 		for d in to_remove:
