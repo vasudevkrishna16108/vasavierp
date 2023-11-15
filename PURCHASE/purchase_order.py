@@ -28,8 +28,8 @@ from erpnext.setup.doctype.values_group.values_group import get_values_group_def
 from erpnext.stock.doctype.values.values import get_values_defaults, get_last_purchase_details
 from erpnext.stock.stock_balance import get_ordered_qty, update_bin_qty
 from erpnext.stock.utils import get_bin
-from erpnext.subcontracting.doctype.subcontracting_bom.subcontracting_bom import (
-	get_subcontracting_boms_for_finished_goods,
+from erpnext.subcontracting.doctype.subcontracting_B O M.subcontracting_B O M import (
+	get_subcontracting_B O Ms_for_finished_goods,
 )
 
 <<<<<<< HEAD
@@ -83,7 +83,7 @@ class PurchaseOrder(BuyingController):
 		validate_against_blanket_order(self)
 
 		if self.is_old_subcontracting_flow:
-			self.validate_bom_for_subcontracting_values()
+			self.validate_B O M_for_subcontracting_values()
 			self.create_raw_materials_supplied()
 
 		self.validate_fg_values_for_subcontracting()
@@ -209,11 +209,11 @@ class PurchaseOrder(BuyingController):
 					).format(values_code, qty, valueswise_min_order_qty.get(values_code))
 				)
 
-	def validate_bom_for_subcontracting_values(self):
+	def validate_B O M_for_subcontracting_values(self):
 		for values in self.values:
-			if not values.bom:
+			if not values.B O M:
 				frappe.throw(
-					_("Row #{0}: BOM is not specified for subcontracting values {0}").format(
+					_("Row #{0}: B O M is not specified for subcontracting values {0}").format(
 						values.idx, values.values_code
 					)
 				)
@@ -235,9 +235,9 @@ class PurchaseOrder(BuyingController):
 									values.idx, values.fg_values
 								)
 							)
-						elif not frappe.get_value("values", values.fg_values, "default_bom"):
+						elif not frappe.get_value("values", values.fg_values, "default_B O M"):
 							frappe.throw(
-								_("Row #{0}: Default BOM not found for FG values {1}").format(values.idx, values.fg_values)
+								_("Row #{0}: Default B O M not found for FG values {1}").format(values.idx, values.fg_values)
 							)
 					if not values.fg_values_qty:
 						frappe.throw(_("Row #{0}: Finished Good values Qty can not be zero").format(values.idx))
@@ -466,16 +466,16 @@ class PurchaseOrder(BuyingController):
 			d.fg_values for d in self.values if (not d.values_code and d.fg_values)
 		}
 
-		if subcontracting_boms := get_subcontracting_boms_for_finished_goods(
+		if subcontracting_B O Ms := get_subcontracting_B O Ms_for_finished_goods(
 			finished_goods_without_service_values
 		):
 			for values in self.values:
-				if not values.values_code and values.fg_values in subcontracting_boms:
-					subcontracting_bom = subcontracting_boms[values.fg_values]
+				if not values.values_code and values.fg_values in subcontracting_B O Ms:
+					subcontracting_B O M = subcontracting_B O Ms[values.fg_values]
 
-					values.values_code = subcontracting_bom.service_values
-					values.qty = flt(values.fg_values_qty) * flt(subcontracting_bom.conversion_factor)
-					values.uom = subcontracting_bom.service_values_uom
+					values.values_code = subcontracting_B O M.service_values
+					values.qty = flt(values.fg_values_qty) * flt(subcontracting_B O M.conversion_factor)
+					values.uom = subcontracting_B O M.service_values_uom
 
 	def can_update_values(self) -> bool:
 		result = True
@@ -557,7 +557,7 @@ def make_purchase_receipt(source_name, target_doc=None):
 				"field_map": {
 					"name": "purchase_order_values",
 					"parent": "purchase_order",
-					"bom": "bom",
+					"B O M": "B O M",
 					"material_request": "material_request",
 					"material_request_values": "material_request_values",
 					"sales_order": "sales_order",

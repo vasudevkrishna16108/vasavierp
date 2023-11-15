@@ -952,7 +952,7 @@ class TestPurchaseOrder(FrappeTestCase):
 	def test_update_values_for_subcontracting_purchase_order(self):
 		from erpnext.controllers.tests.test_subcontracting_controller import (
 			get_subcontracting_order,
-			make_bom_for_subcontracted_values,
+			make_B O M_for_subcontracted_values,
 			make_raw_materials,
 			make_service_values,
 			make_subcontracted_values,
@@ -973,7 +973,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		make_subcontracted_values()
 		make_raw_materials()
 		make_service_values()
-		make_bom_for_subcontracted_values()
+		make_B O M_for_subcontracted_values()
 
 		service_values = [
 			{
@@ -1153,6 +1153,6 @@ def get_requested_qty(values_code="_Test values", house="_Test house - _TC"):
 	)
 
 
-test_dependencies = ["BOM", "values Price"]
+test_dependencies = ["B O M", "values Price"]
 
 test_records = frappe.get_test_records("purchase orders")

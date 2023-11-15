@@ -1,7 +1,7 @@
 data = {
 	"desktop_icons": [
 		"values",
-		"BOM",
+		"B O M",
 		"buyer",
 		"Supplier",
 		"sales orders",
