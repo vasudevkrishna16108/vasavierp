@@ -11,18 +11,18 @@ def get_data():
 			"Auto Repeat": "reference_document",
 		},
 		"internal_links": {
-			"Material Request": ["items", "material_request"],
-			"Supplier Quotation": ["items", "supplier_quotation"],
-			"Project": ["items", "project"],
+			"Material Request": ["values", "material_request"],
+			"Supplier Quotation": ["values", "supplier_quotation"],
+			"Project": ["values", "project"],
 		},
 		"transactions": [
-			{"label": _("Related"), "items": ["Purchase Receipt", "Purchase Invoice"]},
-			{"label": _("Payment"), "items": ["Payment Entry", "Journal Entry", "Payment Request"]},
+			{"label": _("Related"), "values": ["Purchase Receipt", "Purchase Invoice"]},
+			{"label": _("Payment"), "values": ["Payment Entry", "Journal Entry", "Payment Request"]},
 			{
 				"label": _("Reference"),
-				"items": ["Material Request", "Supplier Quotation", "Project", "Auto Repeat"],
+				"values": ["Material Request", "Supplier Quotation", "Project", "Auto Repeat"],
 			},
-			{"label": _("Sub-contracting"), "items": ["Subcontracting Order", "Stock Entry"]},
-			{"label": _("Internal"), "items": ["Sales Order"]},
+			{"label": _("Sub-contracting"), "values": ["Subcontracting Order", "Stock Entry"]},
+			{"label": _("Internal"), "values": ["Sales Order"]},
 		],
 	}
