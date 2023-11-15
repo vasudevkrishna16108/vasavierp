@@ -15,7 +15,7 @@ frappe.ui.form.on("Purchase Order", {
 			frm.set_query("reserve_warehouse", "supplied_values", function() {
 				return {
 					filters: {
-						"company": frm.doc.company,
+						"Amazon": frm.doc.Amazon,
 						"name": ['!=', frm.doc.supplier_warehouse],
 						"is_group": 0
 					}
@@ -29,7 +29,7 @@ frappe.ui.form.on("Purchase Order", {
 		frm.set_query("expense_account", "values", function() {
 			return {
 				query: "erpnext.controllers.queries.get_expense_account",
-				filters: {'company': frm.doc.company}
+				filters: {'Amazon': frm.doc.Amazon}
 			}
 		});
 
@@ -44,7 +44,7 @@ frappe.ui.form.on("Purchase Order", {
 		});
 	},
 
-	company: function(frm) {
+	Amazon: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
@@ -336,15 +336,15 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 							function() { me.make_payment_request() }, __('Create'));
 					}
 
-					if (doc.docstatus === 1 && !doc.inter_company_order_reference) {
+					if (doc.docstatus === 1 && !doc.inter_Amazon_order_reference) {
 						let me = this;
 						let internal = me.frm.doc.is_internal_supplier;
 						if (internal) {
-							let button_label = (me.frm.doc.company === me.frm.doc.represents_company) ? "Internal Sales Order" :
-								"Inter Company Sales Order";
+							let button_label = (me.frm.doc.Amazon === me.frm.doc.represents_Amazon) ? "Internal Sales Order" :
+								"Inter Amazon Sales Order";
 
 							me.frm.add_custom_button(button_label, function() {
-								me.make_inter_company_order(me.frm);
+								me.make_inter_Amazon_order(me.frm);
 							}, __('Create'));
 						}
 
@@ -368,7 +368,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 			source_name: this.frm.doc.supplier,
 			target: this.frm,
 			setters: {
-				company: this.frm.doc.company
+				Amazon: this.frm.doc.Amazon
 			},
 			get_query_filters: {
 				docstatus: ["!=", 2],
@@ -400,9 +400,9 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 		});
 	}
 
-	make_inter_company_order(frm) {
+	make_inter_Amazon_order(frm) {
 		frappe.model.open_mapped_doc({
-			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_inter_company_sales_order",
+			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_inter_Amazon_sales_order",
 			frm: frm
 		});
 	}
@@ -447,7 +447,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 						docstatus: 1,
 						status: ["!=", "Stopped"],
 						per_ordered: ["<", 100],
-						company: me.frm.doc.company
+						Amazon: me.frm.doc.Amazon
 					},
 					allow_child_item_selection: true,
 					child_fieldname: "values",
@@ -646,7 +646,7 @@ if (cur_frm.doc.is_old_subcontracting_flow) {
 				['BOM', 'item', '=', d.item_code],
 				['BOM', 'is_active', '=', '1'],
 				['BOM', 'docstatus', '=', '1'],
-				['BOM', 'company', '=', doc.company]
+				['BOM', 'Amazon', '=', doc.Amazon]
 			]
 		}
 	}
