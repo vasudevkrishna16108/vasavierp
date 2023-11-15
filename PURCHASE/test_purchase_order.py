@@ -18,7 +18,7 @@ from erpnext.buying.doctype.purchase_order.purchase_order import (
 from erpnext.buying.doctype.purchase_order.purchase_order import make_purchase_receipt
 from erpnext.controllers.accounts_controller import update_child_qty_rate
 from erpnext.manufacturing.doctype.blanket_order.test_blanket_order import make_blanket_order
-from erpnext.stock.doctype.values.test_values import make_values
+from erpnext.stock.doctype.value.test_value import make_value
 from erpnext.stock.doctype.material_request.material_request import make_purchase_order
 from erpnext.stock.doctype.material_request.test_material_request import make_material_request
 from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
@@ -33,7 +33,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		po.submit()
 
 		pr = create_pr_against_po(po.name)
-		self.assertEqual(len(pr.get("values")), 1)
+		self.assertEqual(len(pr.get("value")), 1)
 
 	def test_ordered_qty(self):
 		existing_ordered_qty = get_ordered_qty()
@@ -48,21 +48,21 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 6)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 4)
+		self.assertEqual(po.get("value")[0].received_qty, 4)
 
-		frappe.db.set_value("values", "_Test values", "over_delivery_receipt_allowance", 50)
+		frappe.db.set_value("value", "_Test value", "over_delivery_receipt_allowance", 50)
 
 		pr = create_pr_against_po(po.name, received_qty=8)
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 12)
+		self.assertEqual(po.get("value")[0].received_qty, 12)
 
 		pr.cancel()
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 6)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 4)
+		self.assertEqual(po.get("value")[0].received_qty, 4)
 
 	def test_ordered_qty_against_pi_with_update_stock(self):
 		existing_ordered_qty = get_ordered_qty()
@@ -70,28 +70,28 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 10)
 
-		frappe.db.set_value("values", "_Test values", "over_delivery_receipt_allowance", 50)
-		frappe.db.set_value("values", "_Test values", "over_billing_allowance", 20)
+		frappe.db.set_value("value", "_Test value", "over_delivery_receipt_allowance", 50)
+		frappe.db.set_value("value", "_Test value", "over_billing_allowance", 20)
 
 		pi = make_pi_from_po(po.name)
 		pi.update_stock = 1
-		pi.values[0].qty = 12
+		pi.value[0].qty = 12
 		pi.insert()
 		pi.submit()
 
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 12)
+		self.assertEqual(po.get("value")[0].received_qty, 12)
 
 		pi.cancel()
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 10)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 0)
+		self.assertEqual(po.get("value")[0].received_qty, 0)
 
-		frappe.db.set_value("values", "_Test values", "over_delivery_receipt_allowance", 0)
-		frappe.db.set_value("values", "_Test values", "over_billing_allowance", 0)
+		frappe.db.set_value("value", "_Test value", "over_delivery_receipt_allowance", 0)
+		frappe.db.set_value("value", "_Test value", "over_billing_allowance", 0)
 		frappe.db.set_single_value("Accounts Settings", "over_billing_allowance", 0)
 
 	def test_update_remove_child_linked_to_mr(self):
@@ -102,39 +102,39 @@ class TestPurchaseOrder(FrappeTestCase):
 		po.save()
 		po.submit()
 
-		first_values_of_po = po.get("values")[0]
+		first_value_of_po = po.get("value")[0]
 		existing_ordered_qty = get_ordered_qty()  # 10
 		existing_requested_qty = get_requested_qty()  # 0
 
-		# decrease ordered qty by 3 (10 -> 7) and add values
-		trans_values = json.dumps(
+		# decrease ordered qty by 3 (10 -> 7) and add value
+		trans_value = json.dumps(
 			[
 				{
-					"values_code": first_values_of_po.values_code,
-					"rate": first_values_of_po.rate,
+					"value_code": first_value_of_po.value_code,
+					"rate": first_value_of_po.rate,
 					"qty": 7,
-					"docname": first_values_of_po.name,
+					"docname": first_value_of_po.name,
 				},
-				{"values_code": "_Test values 2", "rate": 200, "qty": 2},
+				{"value_code": "_Test value 2", "rate": 200, "qty": 2},
 			]
 		)
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 		mr.reload()
 
 		# requested qty increases as ordered qty decreases
 		self.assertEqual(get_requested_qty(), existing_requested_qty + 3)  # 3
-		self.assertEqual(mr.values[0].ordered_qty, 7)
+		self.assertEqual(mr.value[0].ordered_qty, 7)
 
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty - 3)  # 7
 
-		# delete first values linked to Material Request
-		trans_values = json.dumps([{"values_code": "_Test values 2", "rate": 200, "qty": 2}])
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		# delete first value linked to Material Request
+		trans_value = json.dumps([{"value_code": "_Test value 2", "rate": 200, "qty": 2}])
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 		mr.reload()
 
 		# requested qty increases as ordered qty is 0 (deleted row)
 		self.assertEqual(get_requested_qty(), existing_requested_qty + 10)  # 10
-		self.assertEqual(mr.values[0].ordered_qty, 0)
+		self.assertEqual(mr.value[0].ordered_qty, 0)
 
 		# ordered qty decreases as ordered qty is 0 (deleted row)
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty - 10)  # 0
@@ -143,7 +143,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		mr = make_material_request(qty=10)
 		po = make_purchase_order(mr.name)
 		po.supplier = "_Test Supplier"
-		po.values[0].qty = 4
+		po.value[0].qty = 4
 		po.save()
 		po.submit()
 
@@ -154,111 +154,111 @@ class TestPurchaseOrder(FrappeTestCase):
 		existing_ordered_qty = get_ordered_qty()
 		existing_requested_qty = get_requested_qty()
 
-		trans_values = json.dumps(
-			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.values[0].name}]
+		trans_value = json.dumps(
+			[{"value_code": "_Test value", "rate": 200, "qty": 7, "docname": po.value[0].name}]
 		)
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 
 		mr.reload()
-		self.assertEqual(mr.values[0].ordered_qty, 7)
+		self.assertEqual(mr.value[0].ordered_qty, 7)
 		self.assertEqual(mr.per_ordered, 70)
 		self.assertEqual(get_requested_qty(), existing_requested_qty - 3)
 
 		po.reload()
-		self.assertEqual(po.get("values")[0].rate, 200)
-		self.assertEqual(po.get("values")[0].qty, 7)
-		self.assertEqual(po.get("values")[0].amount, 1400)
+		self.assertEqual(po.get("value")[0].rate, 200)
+		self.assertEqual(po.get("value")[0].qty, 7)
+		self.assertEqual(po.get("value")[0].amount, 1400)
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 3)
 
-	def test_update_child_adding_new_values(self):
+	def test_update_child_adding_new_value(self):
 		po = create_purchase_order(do_not_save=1)
-		po.values[0].qty = 4
+		po.value[0].qty = 4
 		po.save()
 		po.submit()
 		pr = make_pr_against_po(po.name, 2)
 
 		po.load_from_db()
 		existing_ordered_qty = get_ordered_qty()
-		first_values_of_po = po.get("values")[0]
+		first_value_of_po = po.get("value")[0]
 
-		trans_values = json.dumps(
+		trans_value = json.dumps(
 			[
 				{
-					"values_code": first_values_of_po.values_code,
-					"rate": first_values_of_po.rate,
-					"qty": first_values_of_po.qty,
-					"docname": first_values_of_po.name,
+					"value_code": first_value_of_po.value_code,
+					"rate": first_value_of_po.rate,
+					"qty": first_value_of_po.qty,
+					"docname": first_value_of_po.name,
 				},
-				{"values_code": "_Test values", "rate": 200, "qty": 7},
+				{"value_code": "_Test value", "rate": 200, "qty": 7},
 			]
 		)
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 
 		po.reload()
-		self.assertEqual(len(po.get("values")), 2)
+		self.assertEqual(len(po.get("value")), 2)
 		self.assertEqual(po.status, "To Receive and Bill")
 		# ordered qty should increase on row addition
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 7)
 
-	def test_update_child_removing_values(self):
+	def test_update_child_removing_value(self):
 		po = create_purchase_order(do_not_save=1)
-		po.values[0].qty = 4
+		po.value[0].qty = 4
 		po.save()
 		po.submit()
 		pr = make_pr_against_po(po.name, 2)
 
 		po.reload()
-		first_values_of_po = po.get("values")[0]
+		first_value_of_po = po.get("value")[0]
 		existing_ordered_qty = get_ordered_qty()
-		# add an values
-		trans_values = json.dumps(
+		# add an value
+		trans_value = json.dumps(
 			[
 				{
-					"values_code": first_values_of_po.values_code,
-					"rate": first_values_of_po.rate,
-					"qty": first_values_of_po.qty,
-					"docname": first_values_of_po.name,
+					"value_code": first_value_of_po.value_code,
+					"rate": first_value_of_po.rate,
+					"qty": first_value_of_po.qty,
+					"docname": first_value_of_po.name,
 				},
-				{"values_code": "_Test values", "rate": 200, "qty": 7},
+				{"value_code": "_Test value", "rate": 200, "qty": 7},
 			]
 		)
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 
 		po.reload()
 
 		# ordered qty should increase on row addition
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty + 7)
 
-		# check if can remove received values
-		trans_values = json.dumps(
-			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.get("values")[1].name}]
+		# check if can remove received value
+		trans_value = json.dumps(
+			[{"value_code": "_Test value", "rate": 200, "qty": 7, "docname": po.get("value")[1].name}]
 		)
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_value, po.name
 		)
 
-		first_values_of_po = po.get("values")[0]
-		trans_values = json.dumps(
+		first_value_of_po = po.get("value")[0]
+		trans_value = json.dumps(
 			[
 				{
-					"values_code": first_values_of_po.values_code,
-					"rate": first_values_of_po.rate,
-					"qty": first_values_of_po.qty,
-					"docname": first_values_of_po.name,
+					"value_code": first_value_of_po.value_code,
+					"rate": first_value_of_po.rate,
+					"qty": first_value_of_po.qty,
+					"docname": first_value_of_po.name,
 				}
 			]
 		)
-		update_child_qty_rate("purchase orders", trans_values, po.name)
+		update_child_qty_rate("purchase orders", trans_value, po.name)
 
 		po.reload()
-		self.assertEqual(len(po.get("values")), 1)
+		self.assertEqual(len(po.get("value")), 1)
 		self.assertEqual(po.status, "To Receive and Bill")
 
 		# ordered qty should decrease (back to initial) on row deletion
 		self.assertEqual(get_ordered_qty(), existing_ordered_qty)
 
 	def test_update_child_perm(self):
-		po = create_purchase_order(values_code="_Test values", qty=4)
+		po = create_purchase_order(value_code="_Test value", qty=4)
 
 		user = "test@example.com"
 		test_user = frappe.get_doc("User", user)
@@ -266,17 +266,17 @@ class TestPurchaseOrder(FrappeTestCase):
 		frappe.set_user(user)
 
 		# update qty
-		trans_values = json.dumps(
-			[{"values_code": "_Test values", "rate": 200, "qty": 7, "docname": po.values[0].name}]
+		trans_value = json.dumps(
+			[{"value_code": "_Test value", "rate": 200, "qty": 7, "docname": po.value[0].name}]
 		)
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_value, po.name
 		)
 
-		# add new values
-		trans_values = json.dumps([{"values_code": "_Test values", "rate": 100, "qty": 2}])
+		# add new value
+		trans_value = json.dumps([{"value_code": "_Test value", "rate": 100, "qty": 2}])
 		self.assertRaises(
-			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_values, po.name
+			frappe.ValidationError, update_child_qty_rate, "purchase orders", trans_value, po.name
 		)
 		frappe.set_user("Administrator")
 
@@ -284,36 +284,40 @@ class TestPurchaseOrder(FrappeTestCase):
 		"""
 <<<<<<< HEAD
 		Test Action: Create a PO with one item having its tax account head already in the PO.
-		Add the same item + new item with tax template update via Update values.
+		Add the same item + new item with tax template update via Update value.
 		Expected result: First Item's tax row is updated. New tax row is added for second Item.
 =======
-		Test Action: Create a PO with one values having its tax account head already in the PO.
-		Add the same values + new values with tax template via Update values.
-		Expected result: First values's tax row is updated. New tax row is added for second values.
+		Test Action: Create a PO with one value having its tax account head already in the PO.
+		Add the same value + new value with tax template via Update value.
+		Expected result: First value's tax row is updated. New tax row is added for second value.
 >>>>>>> 697f7ab923918cb8a276d6191b4aadd9a7689d21
 		"""
-		if not frappe.db.exists("values", "Test values with Tax"):
-			make_values(
-				"Test values with Tax",
+		if not frappe.db.exists("value", "Test value with Tax"):
+			make_value(
+				"Test value with Tax",
 				{
-					"is_stock_values": 1,
+					"is_stock_value": 1,
 				},
 			)
 
 <<<<<<< HEAD
-		if not frappe.db.exists("Item Tax template update", {"title": "Test Update values template update"}):
+		if not frappe.db.exists("Item Tax template update", {"title": "Test Update value template update"}):
 			frappe.get_doc(
 				{
 					"doctype": "Item Tax template update",
-					"title": "Test Update values template update",
+					"title": "Test Update value template update",
 =======
-		if not frappe.db.exists("values Tax Template", {"title": "Test Update values Template"}):
+		if not frappe.db.exists("value Tax Template", {"title": "Test Update value Template"}):
 			frappe.get_doc(
 				{
-					"doctype": "values Tax Template",
-					"title": "Test Update values Template",
+					"doctype": "value Tax Template",
+					"title": "Test Update value Template",
+<<<<<<< HEAD
+					"company": "_Company Name",
+=======
 >>>>>>> 697f7ab923918cb8a276d6191b4aadd9a7689d21
 					"Amazon": "_Test Amazon",
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 					"taxes": [
 						{
 							"tax_type": "_Test Account Service Tax - _TC",
@@ -323,24 +327,24 @@ class TestPurchaseOrder(FrappeTestCase):
 				}
 			).insert()
 
-		new_values_with_tax = frappe.get_doc("values", "Test values with Tax")
+		new_value_with_tax = frappe.get_doc("value", "Test value with Tax")
 
 		if not frappe.db.exists(
 <<<<<<< HEAD
 			"Item Tax",
-			{"item_tax_template update": "Test Update values template update - _TC", "parent": "Test Item with Tax"},
+			{"item_tax_template update": "Test Update value template update - _TC", "parent": "Test Item with Tax"},
 		):
 			new_item_with_tax.append(
-				"taxes", {"item_tax_template update": "Test Update values template update - _TC", "valid_from": nowdate()}
+				"taxes", {"item_tax_template update": "Test Update value template update - _TC", "valid_from": nowdate()}
 =======
-			"values Tax",
-			{"values_tax_template": "Test Update values Template - _TC", "parent": "Test values with Tax"},
+			"value Tax",
+			{"value_tax_template": "Test Update value Template - _TC", "parent": "Test value with Tax"},
 		):
-			new_values_with_tax.append(
-				"taxes", {"values_tax_template": "Test Update values Template - _TC", "valid_from": nowdate()}
+			new_value_with_tax.append(
+				"taxes", {"value_tax_template": "Test Update value Template - _TC", "valid_from": nowdate()}
 >>>>>>> 697f7ab923918cb8a276d6191b4aadd9a7689d21
 			)
-			new_values_with_tax.save()
+			new_value_with_tax.save()
 
 <<<<<<< HEAD
 		tax_template update = "_Test Account Excise Duty @ 10 - _TC"
@@ -357,21 +361,21 @@ class TestPurchaseOrder(FrappeTestCase):
 				{"item": item, "tax": tax_template update},
 =======
 		tax_template = "_Test Account Excise Duty @ 10 - _TC"
-		values = "_Test values Home Desktop 100"
-		if not frappe.db.exists("values Tax", {"parent": values, "values_tax_template": tax_template}):
-			values_doc = frappe.get_doc("values", values)
-			values_doc.append("taxes", {"values_tax_template": tax_template, "valid_from": nowdate()})
-			values_doc.save()
+		value = "_Test value Home Desktop 100"
+		if not frappe.db.exists("value Tax", {"parent": value, "value_tax_template": tax_template}):
+			value_doc = frappe.get_doc("value", value)
+			value_doc.append("taxes", {"value_tax_template": tax_template, "valid_from": nowdate()})
+			value_doc.save()
 		else:
 			# update valid from
 			frappe.db.sql(
-				"""UPDATE `tabvalues Tax` set valid_from = CURRENT_DATE
-				where parent = %(values)s and values_tax_template = %(tax)s""",
-				{"values": values, "tax": tax_template},
+				"""UPDATE `tabvalue Tax` set valid_from = CURRENT_DATE
+				where parent = %(value)s and value_tax_template = %(tax)s""",
+				{"value": value, "tax": tax_template},
 >>>>>>> 697f7ab923918cb8a276d6191b4aadd9a7689d21
 			)
 
-		po = create_purchase_order(values_code=values, qty=1, do_not_save=1)
+		po = create_purchase_order(value_code=value, qty=1, do_not_save=1)
 
 		po.append(
 			"taxes",
@@ -390,22 +394,22 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertEqual(po.taxes[0].tax_amount, 50)
 		self.assertEqual(po.taxes[0].total, 550)
 
-		values = json.dumps(
+		value = json.dumps(
 			[
-				{"values_code": values, "rate": 500, "qty": 1, "docname": po.values[0].name},
+				{"value_code": value, "rate": 500, "qty": 1, "docname": po.value[0].name},
 				{
-					"values_code": values,
+					"value_code": value,
 					"rate": 100,
 					"qty": 1,
-				},  # added values whose tax account head already exists in PO
+				},  # added value whose tax account head already exists in PO
 				{
-					"values_code": new_values_with_tax.name,
+					"value_code": new_value_with_tax.name,
 					"rate": 100,
 					"qty": 1,
-				},  # added values whose tax account head  is missing in PO
+				},  # added value whose tax account head  is missing in PO
 			]
 		)
-		update_child_qty_rate("purchase orders", values, po.name)
+		update_child_qty_rate("purchase orders", value, po.name)
 
 		po.reload()
 		self.assertEqual(po.taxes[0].tax_amount, 70)
@@ -424,16 +428,16 @@ class TestPurchaseOrder(FrappeTestCase):
 		po.cancel()
 		po.delete()
 		new_item_with_tax.delete()
-		frappe.get_doc("Item Tax template update", "Test Update values template update - _TC").delete()
+		frappe.get_doc("Item Tax template update", "Test Update value template update - _TC").delete()
 =======
-			"""UPDATE `tabvalues Tax` set valid_from = NULL
-			where parent = %(values)s and values_tax_template = %(tax)s""",
-			{"values": values, "tax": tax_template},
+			"""UPDATE `tabvalue Tax` set valid_from = NULL
+			where parent = %(value)s and value_tax_template = %(tax)s""",
+			{"value": value, "tax": tax_template},
 		)
 		po.cancel()
 		po.delete()
-		new_values_with_tax.delete()
-		frappe.get_doc("values Tax Template", "Test Update values Template - _TC").delete()
+		new_value_with_tax.delete()
+		frappe.get_doc("value Tax Template", "Test Update value Template - _TC").delete()
 >>>>>>> 697f7ab923918cb8a276d6191b4aadd9a7689d21
 
 	def test_update_qty(self):
@@ -442,32 +446,32 @@ class TestPurchaseOrder(FrappeTestCase):
 		pr = make_pr_against_po(po.name, 2)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 2)
+		self.assertEqual(po.get("value")[0].received_qty, 2)
 
 		# Check received_qty after making PI from PR without update_stock checked
 		pi1 = make_pi_from_pr(pr.name)
-		pi1.get("values")[0].qty = 2
+		pi1.get("value")[0].qty = 2
 		pi1.insert()
 		pi1.submit()
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 2)
+		self.assertEqual(po.get("value")[0].received_qty, 2)
 
 		# Check received_qty after making PI from PO with update_stock checked
 		pi2 = make_pi_from_po(po.name)
 		pi2.set("update_stock", 1)
-		pi2.get("values")[0].qty = 3
+		pi2.get("value")[0].qty = 3
 		pi2.insert()
 		pi2.submit()
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 5)
+		self.assertEqual(po.get("value")[0].received_qty, 5)
 
 		# Check received_qty after making PR from PO
 		pr = make_pr_against_po(po.name, 1)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 6)
+		self.assertEqual(po.get("value")[0].received_qty, 6)
 
 	def test_return_against_purchase_order(self):
 		po = create_purchase_order()
@@ -475,16 +479,16 @@ class TestPurchaseOrder(FrappeTestCase):
 		pr = make_pr_against_po(po.name, 6)
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 6)
+		self.assertEqual(po.get("value")[0].received_qty, 6)
 
 		pi2 = make_pi_from_po(po.name)
 		pi2.set("update_stock", 1)
-		pi2.get("values")[0].qty = 3
+		pi2.get("value")[0].qty = 3
 		pi2.insert()
 		pi2.submit()
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 9)
+		self.assertEqual(po.get("value")[0].received_qty, 9)
 
 		# Make return purchase receipt, purchase invoice and check quantity
 		from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import (
@@ -497,19 +501,19 @@ class TestPurchaseOrder(FrappeTestCase):
 		pr1 = make_purchase_receipt_return(
 			is_return=1, return_against=pr.name, qty=-3, do_not_submit=True
 		)
-		pr1.values[0].purchase_order = po.name
-		pr1.values[0].purchase_order_values = po.values[0].name
+		pr1.value[0].purchase_order = po.name
+		pr1.value[0].purchase_order_value = po.value[0].name
 		pr1.submit()
 
 		pi1 = make_purchase_invoice_return(
 			is_return=1, return_against=pi2.name, qty=-1, update_stock=1, do_not_submit=True
 		)
-		pi1.values[0].purchase_order = po.name
-		pi1.values[0].po_detail = po.values[0].name
+		pi1.value[0].purchase_order = po.name
+		pi1.value[0].po_detail = po.value[0].name
 		pi1.submit()
 
 		po.load_from_db()
-		self.assertEqual(po.get("values")[0].received_qty, 5)
+		self.assertEqual(po.get("value")[0].received_qty, 5)
 
 	def test_purchase_order_invoice_receipt_workflow(self):
 		from erpnext.accounts.doctype.purchase_invoice.purchase_invoice import make_purchase_receipt
@@ -525,7 +529,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		pi.load_from_db()
 
 		self.assertEqual(pi.per_received, 100.00)
-		self.assertEqual(pi.values[0].qty, pi.values[0].received_qty)
+		self.assertEqual(pi.value[0].qty, pi.value[0].received_qty)
 
 		po.load_from_db()
 
@@ -549,10 +553,10 @@ class TestPurchaseOrder(FrappeTestCase):
 		pi = make_pi_from_po(po.name)
 
 		self.assertEqual(pi.doctype, "Purchase Invoice")
-		self.assertEqual(len(pi.get("values", [])), 1)
+		self.assertEqual(len(pi.get("value", [])), 1)
 
 	def test_purchase_order_on_hold(self):
-		po = create_purchase_order(values_code="_Test Product Bundle values")
+		po = create_purchase_order(value_code="_Test Product Bundle value")
 		po.db_set("Status", "On Hold")
 		pi = make_pi_from_po(po.name)
 		pr = make_purchase_receipt(po.name)
@@ -584,7 +588,7 @@ class TestPurchaseOrder(FrappeTestCase):
 		pi.save()
 
 		self.assertEqual(pi.doctype, "Purchase Invoice")
-		self.assertEqual(len(pi.get("values", [])), 1)
+		self.assertEqual(len(pi.get("value", [])), 1)
 
 		self.assertEqual(pi.payment_schedule[0].payment_amount, 2500.0)
 		self.assertEqual(getdate(pi.payment_schedule[0].due_date), getdate(po.transaction_date))
@@ -597,8 +601,13 @@ class TestPurchaseOrder(FrappeTestCase):
 	def test_house_Amazon_validation(self):
 		from erpnext.stock.utils import InvalidhouseAmazon
 
+<<<<<<< HEAD
+		po = create_purchase_order(company="_Company Name 1", do_not_save=True)
+		self.assertRaises(InvalidWarehouseCompany, po.insert)
+=======
 		po = create_purchase_order(Amazon="_Test Amazon 1", do_not_save=True)
 		self.assertRaises(InvalidhouseAmazon, po.insert)
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 
 	def test_uom_integer_validation(self):
 		from erpnext.utilities.transaction_base import UOMMustBeIntegerError
@@ -609,38 +618,50 @@ class TestPurchaseOrder(FrappeTestCase):
 	def test_ordered_qty_for_closing_po(self):
 		bin = frappe.get_all(
 			"Bin",
-			filters={"values_code": "_Test values", "house": "_Test house - _TC"},
+			filters={"value_code": "_Test value", "house": "_Test house - _TC"},
 			fields=["ordered_qty"],
 		)
 
 		existing_ordered_qty = bin[0].ordered_qty if bin else 0.0
 
-		po = create_purchase_order(values_code="_Test values", qty=1)
+		po = create_purchase_order(value_code="_Test value", qty=1)
 
 		self.assertEqual(
-			get_ordered_qty(values_code="_Test values", house="_Test house - _TC"),
+			get_ordered_qty(value_code="_Test value", house="_Test house - _TC"),
 			existing_ordered_qty + 1,
 		)
 
 		po.update_status("Closed")
 
 		self.assertEqual(
-			get_ordered_qty(values_code="_Test values", house="_Test house - _TC"), existing_ordered_qty
+			get_ordered_qty(value_code="_Test value", house="_Test house - _TC"), existing_ordered_qty
 		)
 
-	def test_group_same_values(self):
-		frappe.db.set_single_value("Buying Settings", "allow_multiple_values", 1)
+	def test_group_same_value(self):
+		frappe.db.set_single_value("Buying Settings", "allow_multiple_value", 1)
 		frappe.get_doc(
 			{
+<<<<<<< HEAD
+				"doctype": "Purchase Order",
+<<<<<<< HEAD
+				"company": "_Company Name",
+				"supplier": "_Test Supplier",
+				"is_subcontracted": 0,
+				"schedule_date": add_days(nowdate(), 1),
+				"currency": frappe.get_cached_value("Company", "_Company Name", "default_currency"),
+=======
+=======
 				"doctype": "purchase orders",
+>>>>>>> 61576f922b0bf651d9e498e7d45e48b274357925
 				"Amazon": "_Test Amazon",
 				"supplier": "_Test Supplier",
 				"is_subcontracted": 0,
 				"schedule_date": add_days(nowdate(), 1),
 				"currency": frappe.get_cached_value("Amazon", "_Test Amazon", "default_currency"),
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 				"conversion_factor": 1,
-				"values": get_same_values(),
-				"group_same_values": 1,
+				"value": get_same_value(),
+				"group_same_value": 1,
 			}
 		).insert(ignore_permissions=True)
 
@@ -746,12 +767,21 @@ class TestPurchaseOrder(FrappeTestCase):
 		po.save()
 		po.submit()
 
+<<<<<<< HEAD
+		frappe.db.set_value("Company", "_Company Name", "payment_terms", "_Test Payment Term Template 1")
+		pi = make_pi_from_po(po.name)
+		pi.save()
+
+		self.assertEqual(pi.get("payment_terms_template"), "_Test Payment Term Template 1")
+		frappe.db.set_value("Company", "_Company Name", "payment_terms", "")
+=======
 		frappe.db.set_value("Amazon", "_Test Amazon", "payment_terms", "_Test Payment Term template update 1")
 		pi = make_pi_from_po(po.name)
 		pi.save()
 
 		self.assertEqual(pi.get("payment_terms_template update"), "_Test Payment Term template update 1")
 		frappe.db.set_value("Amazon", "_Test Amazon", "payment_terms", "")
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 
 	def test_terms_copied(self):
 		po = create_purchase_order(do_not_save=1)
@@ -819,13 +849,13 @@ class TestPurchaseOrder(FrappeTestCase):
 		po = create_purchase_order(do_not_submit=True)
 		po.schedule_date = None
 		po.append(
-			"values",
-			{"values_code": "_Test values", "qty": 1, "rate": 100, "schedule_date": add_days(nowdate(), 5)},
+			"value",
+			{"value_code": "_Test value", "qty": 1, "rate": 100, "schedule_date": add_days(nowdate(), 5)},
 		)
 		po.save()
 		self.assertEqual(po.schedule_date, add_days(nowdate(), 1))
 
-		po.values[0].schedule_date = add_days(nowdate(), 2)
+		po.value[0].schedule_date = add_days(nowdate(), 2)
 		po.save()
 		self.assertEqual(po.schedule_date, add_days(nowdate(), 2))
 
@@ -837,15 +867,15 @@ class TestPurchaseOrder(FrappeTestCase):
 
 		bo = make_blanket_order(blanket_order_type="Purchasing", quantity=10, rate=10)
 
-		po = create_purchase_order(values_code="_Test values", qty=5, against_blanket_order=1)
+		po = create_purchase_order(value_code="_Test value", qty=5, against_blanket_order=1)
 		po_doc = frappe.get_doc("purchase orders", po.get("name"))
 		# To test if the PO has a Blanket Order
-		self.assertTrue(po_doc.values[0].blanket_order)
+		self.assertTrue(po_doc.value[0].blanket_order)
 
-		po = create_purchase_order(values_code="_Test values", qty=5, against_blanket_order=0)
+		po = create_purchase_order(value_code="_Test value", qty=5, against_blanket_order=0)
 		po_doc = frappe.get_doc("purchase orders", po.get("name"))
 		# To test if the PO does NOT have a Blanket Order
-		self.assertEqual(po_doc.values[0].blanket_order, None)
+		self.assertEqual(po_doc.value[0].blanket_order, None)
 
 	def test_payment_terms_are_fetched_when_creating_purchase_invoice(self):
 		from erpnext.accounts.doctype.payment_entry.test_payment_entry import (
@@ -865,8 +895,8 @@ class TestPurchaseOrder(FrappeTestCase):
 		po.submit()
 
 		pi = make_purchase_invoice(qty=10, rate=100, do_not_save=1)
-		pi.values[0].purchase_order = po.name
-		pi.values[0].po_detail = po.values[0].name
+		pi.value[0].purchase_order = po.name
+		pi.value[0].po_detail = po.value[0].name
 		pi.insert()
 
 		# self.assertEqual(po.payment_terms_template update, pi.payment_terms_template update)
@@ -891,52 +921,60 @@ class TestPurchaseOrder(FrappeTestCase):
 		supplier = "_Test Internal Supplier 2"
 
 		mr = make_material_request(
+<<<<<<< HEAD
+			qty=2, company="_Company Name with perpetual inventory", warehouse="Stores - TCP1"
+		)
+
+		po = create_purchase_order(
+			company="_Company Name with perpetual inventory",
+=======
 			qty=2, Amazon="_Test Amazon with perpetual inventory", house="Stores - TCP1"
 		)
 
 		po = create_purchase_order(
 			Amazon="_Test Amazon with perpetual inventory",
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 			supplier=supplier,
 			house="Stores - TCP1",
 			from_house="_Test Internal house New 1 - TCP1",
 			qty=2,
 			rate=1,
 			material_request=mr.name,
-			material_request_values=mr.values[0].name,
+			material_request_value=mr.value[0].name,
 		)
 
 		so = make_inter_Amazon_sales_order(po.name)
-		so.values[0].delivery_date = today()
-		self.assertEqual(so.values[0].house, "_Test Internal house New 1 - TCP1")
-		self.assertTrue(so.values[0].purchase_order)
-		self.assertTrue(so.values[0].purchase_order_values)
+		so.value[0].delivery_date = today()
+		self.assertEqual(so.value[0].house, "_Test Internal house New 1 - TCP1")
+		self.assertTrue(so.value[0].purchase_order)
+		self.assertTrue(so.value[0].purchase_order_value)
 		so.submit()
 
 		dn = make_delivery_note(so.name)
-		dn.values[0].target_house = "_Test Internal house GIT - TCP1"
-		self.assertEqual(dn.values[0].house, "_Test Internal house New 1 - TCP1")
-		self.assertTrue(dn.values[0].purchase_order)
-		self.assertTrue(dn.values[0].purchase_order_values)
+		dn.value[0].target_house = "_Test Internal house GIT - TCP1"
+		self.assertEqual(dn.value[0].house, "_Test Internal house New 1 - TCP1")
+		self.assertTrue(dn.value[0].purchase_order)
+		self.assertTrue(dn.value[0].purchase_order_value)
 
-		self.assertEqual(po.values[0].name, dn.values[0].purchase_order_values)
+		self.assertEqual(po.value[0].name, dn.value[0].purchase_order_value)
 		dn.submit()
 
 		pr = make_inter_Amazon_purchase_receipt(dn.name)
-		self.assertEqual(pr.values[0].house, "Stores - TCP1")
-		self.assertTrue(pr.values[0].purchase_order)
-		self.assertTrue(pr.values[0].purchase_order_values)
-		self.assertEqual(po.values[0].name, pr.values[0].purchase_order_values)
+		self.assertEqual(pr.value[0].house, "Stores - TCP1")
+		self.assertTrue(pr.value[0].purchase_order)
+		self.assertTrue(pr.value[0].purchase_order_value)
+		self.assertEqual(po.value[0].name, pr.value[0].purchase_order_value)
 		pr.submit()
 
 		si = make_sales_invoice(so.name)
-		self.assertEqual(si.values[0].house, "_Test Internal house New 1 - TCP1")
-		self.assertTrue(si.values[0].purchase_order)
-		self.assertTrue(si.values[0].purchase_order_values)
+		self.assertEqual(si.value[0].house, "_Test Internal house New 1 - TCP1")
+		self.assertTrue(si.value[0].purchase_order)
+		self.assertTrue(si.value[0].purchase_order_value)
 		si.submit()
 
 		pi = make_inter_Amazon_purchase_invoice(si.name)
-		self.assertTrue(pi.values[0].purchase_order)
-		self.assertTrue(pi.values[0].po_detail)
+		self.assertTrue(pi.value[0].purchase_order)
+		self.assertTrue(pi.value[0].po_detail)
 		pi.submit()
 		mr.reload()
 
@@ -944,75 +982,75 @@ class TestPurchaseOrder(FrappeTestCase):
 		self.assertEqual(po.status, "Completed")
 		self.assertEqual(mr.status, "Received")
 
-	def test_variant_values_po(self):
-		po = create_purchase_order(values_code="_Test Variant values", qty=1, rate=100, do_not_save=1)
+	def test_variant_value_po(self):
+		po = create_purchase_order(value_code="_Test Variant value", qty=1, rate=100, do_not_save=1)
 
 		self.assertRaises(frappe.ValidationError, po.save)
 
-	def test_update_values_for_subcontracting_purchase_order(self):
+	def test_update_value_for_subcontracting_purchase_order(self):
 		from erpnext.controllers.tests.test_subcontracting_controller import (
 			get_subcontracting_order,
-			make_B O M_for_subcontracted_values,
+			make_B O M_for_subcontracted_value,
 			make_raw_materials,
-			make_service_values,
-			make_subcontracted_values,
+			make_service_value,
+			make_subcontracted_value,
 		)
 
-		def update_values(po, qty):
-			trans_values = [po.values[0].as_dict()]
-			trans_values[0]["qty"] = qty
-			trans_values[0]["fg_values_qty"] = qty
-			trans_values = json.dumps(trans_values, default=str)
+		def update_value(po, qty):
+			trans_value = [po.value[0].as_dict()]
+			trans_value[0]["qty"] = qty
+			trans_value[0]["fg_value_qty"] = qty
+			trans_value = json.dumps(trans_value, default=str)
 
 			return update_child_qty_rate(
 				po.doctype,
-				trans_values,
+				trans_value,
 				po.name,
 			)
 
-		make_subcontracted_values()
+		make_subcontracted_value()
 		make_raw_materials()
-		make_service_values()
-		make_B O M_for_subcontracted_values()
+		make_service_value()
+		make_B O M_for_subcontracted_value()
 
-		service_values = [
+		service_value = [
 			{
 				"house": "_Test house - _TC",
-				"values_code": "Subcontracted Service values 7",
+				"value_code": "Subcontracted Service value 7",
 				"qty": 10,
 				"rate": 100,
-				"fg_values": "Subcontracted values SA7",
-				"fg_values_qty": 10,
+				"fg_value": "Subcontracted value SA7",
+				"fg_value_qty": 10,
 			},
 		]
 		po = create_purchase_order(
-			rm_values=service_values,
+			rm_value=service_value,
 			is_subcontracted=1,
 			supplier_house="_Test house 1 - _TC",
 		)
 
-		update_values(po, qty=20)
+		update_value(po, qty=20)
 		po.reload()
 
-		# Test - 1: values should be updated as there is no Subcontracting Order against PO
-		self.assertEqual(po.values[0].qty, 20)
-		self.assertEqual(po.values[0].fg_values_qty, 20)
+		# Test - 1: value should be updated as there is no Subcontracting Order against PO
+		self.assertEqual(po.value[0].qty, 20)
+		self.assertEqual(po.value[0].fg_value_qty, 20)
 
 		sco = get_subcontracting_order(po_name=po.name, house="_Test house - _TC")
 
 		# Test - 2: ValidationError should be raised as there is Subcontracting Order against PO
-		self.assertRaises(frappe.ValidationError, update_values, po=po, qty=30)
+		self.assertRaises(frappe.ValidationError, update_value, po=po, qty=30)
 
 		sco.reload()
 		sco.cancel()
 		po.reload()
 
-		update_values(po, qty=30)
+		update_value(po, qty=30)
 		po.reload()
 
-		# Test - 3: values should be updated as the Subcontracting Order is cancelled
-		self.assertEqual(po.values[0].qty, 30)
-		self.assertEqual(po.values[0].fg_values_qty, 30)
+		# Test - 3: value should be updated as the Subcontracting Order is cancelled
+		self.assertEqual(po.value[0].qty, 30)
+		self.assertEqual(po.value[0].fg_value_qty, 30)
 
 
 def prepare_data_for_internal_transfer():
@@ -1021,7 +1059,11 @@ def prepare_data_for_internal_transfer():
 	from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import make_purchase_receipt
 	from erpnext.stock.doctype.house.test_house import create_house
 
+<<<<<<< HEAD
+	company = "_Company Name with perpetual inventory"
+=======
 	Amazon = "_Test Amazon with perpetual inventory"
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 
 	create_internal_buyers(
 		"_Test Internal buyers 2",
@@ -1060,23 +1102,23 @@ def prepare_data_for_internal_transfer():
 
 def make_pr_against_po(po, received_qty=0):
 	pr = make_purchase_receipt(po)
-	pr.get("values")[0].qty = received_qty or 5
+	pr.get("value")[0].qty = received_qty or 5
 	pr.insert()
 	pr.submit()
 	return pr
 
 
-def get_same_values():
+def get_same_value():
 	return [
 		{
-			"values_code": "_Test FG values",
+			"value_code": "_Test FG value",
 			"house": "_Test house - _TC",
 			"qty": 1,
 			"rate": 500,
 			"schedule_date": add_days(nowdate(), 1),
 		},
 		{
-			"values_code": "_Test FG values",
+			"value_code": "_Test FG value",
 			"house": "_Test house - _TC",
 			"qty": 4,
 			"rate": 500,
@@ -1092,40 +1134,44 @@ def create_purchase_order(**args):
 		po.transaction_date = args.transaction_date
 
 	po.schedule_date = add_days(nowdate(), 1)
+<<<<<<< HEAD
+	po.company = args.company or "_Company Name"
+=======
 	po.Amazon = args.Amazon or "_Test Amazon"
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
 	po.supplier = args.supplier or "_Test Supplier"
 	po.is_subcontracted = args.is_subcontracted or 0
 	po.currency = args.currency or frappe.get_cached_value("Amazon", po.Amazon, "default_currency")
 	po.conversion_factor = args.conversion_factor or 1
 	po.supplier_house = args.supplier_house or None
 
-	if args.rm_values:
-		for row in args.rm_values:
-			po.append("values", row)
+	if args.rm_value:
+		for row in args.rm_value:
+			po.append("value", row)
 	else:
 		po.append(
-			"values",
+			"value",
 			{
-				"values_code": args.values or args.values_code or "_Test values",
+				"value_code": args.value or args.value_code or "_Test value",
 				"house": args.house or "_Test house - _TC",
 				"from_house": args.from_house,
 				"qty": args.qty or 10,
 				"rate": args.rate or 500,
 				"schedule_date": add_days(nowdate(), 1),
-				"include_exploded_values": args.get("include_exploded_values", 1),
+				"include_exploded_value": args.get("include_exploded_value", 1),
 				"against_blanket_order": args.against_blanket_order,
 				"material_request": args.material_request,
-				"material_request_values": args.material_request_values,
+				"material_request_value": args.material_request_value,
 			},
 		)
 
 	if not args.do_not_save:
-		po.set_missing_values()
+		po.set_missing_value()
 		po.insert()
 		if not args.do_not_submit:
 			if po.is_subcontracted:
-				supp_values = po.get("supplied_values")
-				for d in supp_values:
+				supp_value = po.get("supplied_value")
+				for d in supp_value:
 					if not d.reserve_house:
 						d.reserve_house = args.house or "_Test house - _TC"
 			po.submit()
@@ -1135,24 +1181,24 @@ def create_purchase_order(**args):
 
 def create_pr_against_po(po, received_qty=4):
 	pr = make_purchase_receipt(po)
-	pr.get("values")[0].qty = received_qty
+	pr.get("value")[0].qty = received_qty
 	pr.insert()
 	pr.submit()
 	return pr
 
 
-def get_ordered_qty(values_code="_Test values", house="_Test house - _TC"):
+def get_ordered_qty(value_code="_Test value", house="_Test house - _TC"):
 	return flt(
-		frappe.db.get_value("Bin", {"values_code": values_code, "house": house}, "ordered_qty")
+		frappe.db.get_value("Bin", {"value_code": value_code, "house": house}, "ordered_qty")
 	)
 
 
-def get_requested_qty(values_code="_Test values", house="_Test house - _TC"):
+def get_requested_qty(value_code="_Test value", house="_Test house - _TC"):
 	return flt(
-		frappe.db.get_value("Bin", {"values_code": values_code, "house": house}, "indented_qty")
+		frappe.db.get_value("Bin", {"value_code": value_code, "house": house}, "indented_qty")
 	)
 
 
-test_dependencies = ["B O M", "values Price"]
+test_dependencies = ["B O M", "value Price"]
 
 test_records = frappe.get_test_records("purchase orders")

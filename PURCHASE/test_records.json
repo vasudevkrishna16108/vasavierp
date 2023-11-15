@@ -2,7 +2,11 @@
  {
   "advance_paid": 0.0,  
   "buying_price_list": "_Test Price List", 
+<<<<<<< HEAD
+  "company": "_Company Name", 
+=======
   "Amazon": "_Test Amazon", 
+>>>>>>> 77632b6d025878ca237e95cadbe08f3831db0ba5
   "conversion_rate": 1.0, 
   "currency": "INR", 
   "doctype": "purchase orders", 
@@ -11,15 +15,15 @@
   "is_subcontracted": 0, 
   "naming_series": "_T-purchase orders-", 
   "base_net_total": 5000.0, 
-  "values": [
+  "value": [
    {
     "base_amount": 5000.0, 
     "conversion_factor": 1.0, 
-    "description": "_Test values", 
-    "doctype": "purchase orders values", 
-    "values_code": "_Test values", 
-    "values_name": "_Test values", 
-    "parentfield": "values", 
+    "description": "_Test value", 
+    "doctype": "purchase orders value", 
+    "value_code": "_Test value", 
+    "value_name": "_Test value", 
+    "parentfield": "value", 
     "qty": 10.0, 
     "rate": 500.0, 
     "schedule_date": "2013-03-01", 
