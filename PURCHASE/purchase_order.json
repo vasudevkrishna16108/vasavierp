@@ -15,7 +15,7 @@
   "supplier_name",
   "order_confirmation_no",
   "order_confirmation_date",
-  "get_items_from_open_material_requests",
+  "get_values_from_open_material_requests",
   "column_break_7",
   "transaction_date",
   "schedule_date",
@@ -38,13 +38,13 @@
   "price_list_currency",
   "plc_conversion_rate",
   "ignore_pricing_rule",
-  "before_items_section",
+  "before_values_section",
   "scan_barcode",
   "set_from_warehouse",
-  "items_col_break",
+  "values_col_break",
   "set_warehouse",
-  "items_section",
-  "items",
+  "values_section",
+  "values",
   "sb_last_purchase",
   "total_qty",
   "total_net_weight",
@@ -60,7 +60,7 @@
   "pricing_rules",
   "raw_material_details",
   "set_reserve_warehouse",
-  "supplied_items",
+  "supplied_values",
   "taxes_section",
   "tax_category",
   "taxes_and_charges",
@@ -139,7 +139,7 @@
   "per_received",
   "column_break5",
   "letter_head",
-  "group_same_items",
+  "group_same_values",
   "column_break_86",
   "select_print_heading",
   "language",
@@ -203,11 +203,11 @@
    "search_index": 1
   },
   {
-   "depends_on": "eval:doc.supplier && doc.docstatus===0 && (!(doc.items && doc.items.length) || (doc.items.length==1 && !doc.items[0].item_code))",
-   "description": "Fetch items based on Default Supplier.",
-   "fieldname": "get_items_from_open_material_requests",
+   "depends_on": "eval:doc.supplier && doc.docstatus===0 && (!(doc.values && doc.values.length) || (doc.values.length==1 && !doc.values[0].item_code))",
+   "description": "Fetch values based on Default Supplier.",
+   "fieldname": "get_values_from_open_material_requests",
    "fieldtype": "Button",
-   "label": "Get Items from Open Material Requests"
+   "label": "Get values from Open Material Requests"
   },
   {
    "bold": 1,
@@ -482,7 +482,7 @@
    "options": "Warehouse"
   },
   {
-   "fieldname": "items_section",
+   "fieldname": "values_section",
    "fieldtype": "Section Break",
    "hide_border": 1,
    "oldfieldtype": "Section Break",
@@ -496,9 +496,9 @@
   },
   {
    "allow_bulk_edit": 1,
-   "fieldname": "items",
+   "fieldname": "values",
    "fieldtype": "Table",
-   "label": "Items",
+   "label": "values",
    "oldfieldname": "po_details",
    "oldfieldtype": "Table",
    "options": "Purchase Order Item",
@@ -518,15 +518,15 @@
    "read_only": 1
   },
   {
-   "collapsible_depends_on": "supplied_items",
+   "collapsible_depends_on": "supplied_values",
    "fieldname": "raw_material_details",
    "fieldtype": "Section Break",
    "label": "Raw Materials Supplied"
   },
   {
-   "fieldname": "supplied_items",
+   "fieldname": "supplied_values",
    "fieldtype": "Table",
-   "label": "Supplied Items",
+   "label": "Supplied values",
    "no_copy": 1,
    "oldfieldname": "po_raw_material_details",
    "oldfieldtype": "Table",
@@ -1013,9 +1013,9 @@
   {
    "allow_on_submit": 1,
    "default": "0",
-   "fieldname": "group_same_items",
+   "fieldname": "group_same_values",
    "fieldtype": "Check",
-   "label": "Group same items",
+   "label": "Group same values",
    "print_hide": 1
   },
   {
@@ -1073,7 +1073,7 @@
    "options": "Tax Category"
   },
   {
-   "depends_on": "supplied_items",
+   "depends_on": "supplied_values",
    "fieldname": "set_reserve_warehouse",
    "fieldtype": "Link",
    "label": "Set Reserve Warehouse",
@@ -1102,12 +1102,12 @@
    "read_only": 1
   },
   {
-   "fieldname": "before_items_section",
+   "fieldname": "before_values_section",
    "fieldtype": "Section Break",
    "hide_border": 1
   },
   {
-   "fieldname": "items_col_break",
+   "fieldname": "values_col_break",
    "fieldtype": "Column Break"
   },
   {
