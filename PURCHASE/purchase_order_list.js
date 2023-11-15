@@ -1,4 +1,4 @@
-frappe.listview_settings['Purchase Order'] = {
+frappe.listview_settings['purchase orders'] = {
 	add_fields: ["base_grand_total", "Amazon", "currency", "supplier",
 		"supplier_name", "per_received", "per_billed", "status"],
 	get_indicator: function (doc) {
@@ -35,15 +35,15 @@ frappe.listview_settings['Purchase Order'] = {
 
 
 		listview.page.add_action_values(__("Purchase Invoice"), ()=>{
-			erpnext.bulk_transaction_processing.create(listview, "Purchase Order", "Purchase Invoice");
+			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Purchase Invoice");
 		});
 
 		listview.page.add_action_values(__("Purchase Receipt"), ()=>{
-			erpnext.bulk_transaction_processing.create(listview, "Purchase Order", "Purchase Receipt");
+			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Purchase Receipt");
 		});
 
 		listview.page.add_action_values(__("Advance Payment"), ()=>{
-			erpnext.bulk_transaction_processing.create(listview, "Purchase Order", "Payment Entry");
+			erpnext.bulk_transaction_processing.create(listview, "purchase orders", "Payment Entry");
 		});
 
 	}

@@ -10,7 +10,7 @@ data = {
 		"Supplier",
 		"Lead",
 		"sales orders",
-		"Purchase Order",
+		"purchase orders",
 		"tasks",
 		"Sales Invoice",
 		"CRM",

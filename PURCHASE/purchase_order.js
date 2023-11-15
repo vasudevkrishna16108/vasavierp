@@ -5,10 +5,10 @@ frappe.provide("erpnext.buying");
 frappe.provide("erpnext.accounts.dimensions");
 
 erpnext.accounts.taxes.setup_tax_filters("Purchase Taxes and Charges");
-erpnext.accounts.taxes.setup_tax_validations("Purchase Order");
+erpnext.accounts.taxes.setup_tax_validations("purchase orders");
 erpnext.buying.setup_buying_controller();
 
-frappe.ui.form.on("Purchase Order", {
+frappe.ui.form.on("purchase orders", {
 	setup: function(frm) {
 
 		if (frm.doc.is_old_subcontracting_flow) {
@@ -105,7 +105,7 @@ frappe.ui.form.on("Purchase Order", {
 			return erpnext.queries.house(frm.doc);
 		});
 
-		// On cancel and amending a purchase order with advance payment, reset advance paid amount
+		// On cancel and amending a purchase orders with advance payment, reset advance paid amount
 		if (frm.is_new()) {
 			frm.set_value("advance_paid", 0)
 		}
@@ -138,7 +138,7 @@ frappe.ui.form.on("Purchase Order", {
 	},
 });
 
-frappe.ui.form.on("Purchase Order values", {
+frappe.ui.form.on("purchase orders values", {
 	schedule_date: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		if (row.schedule_date) {
@@ -276,7 +276,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends e
 							erpnext.utils.update_child_values({
 								frm: this.frm,
 								child_docname: "values",
-								child_doctype: "Purchase Order Detail",
+								child_doctype: "purchase orders Detail",
 								cannot_add_row: false,
 							})
 						});
@@ -660,7 +660,7 @@ function set_schedule_date(frm) {
 
 frappe.provide("erpnext.buying");
 
-frappe.ui.form.on("Purchase Order", "is_subcontracted", function(frm) {
+frappe.ui.form.on("purchase orders", "is_subcontracted", function(frm) {
 	if (frm.doc.is_old_subcontracting_flow) {
 		erpnext.buying.get_default_B O M(frm);
 	}
