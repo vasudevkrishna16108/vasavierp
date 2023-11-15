@@ -2,7 +2,7 @@
  {
   "advance_paid": 0.0,  
   "buying_price_list": "_Test Price List", 
-  "company": "_Test Company", 
+  "Amazon": "_Test Amazon", 
   "conversion_rate": 1.0, 
   "currency": "INR", 
   "doctype": "Purchase Order", 

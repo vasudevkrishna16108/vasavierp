@@ -20,7 +20,7 @@
   "transaction_date",
   "schedule_date",
   "column_break1",
-  "company",
+  "Amazon",
   "apply_tds",
   "tax_withholding_category",
   "is_subcontracted",
@@ -112,7 +112,7 @@
   "shipping_address",
   "column_break_99",
   "shipping_address_display",
-  "company_billing_address_section",
+  "Amazon_billing_address_section",
   "billing_address",
   "column_break_103",
   "billing_address_display",
@@ -151,11 +151,11 @@
   "update_auto_repeat_reference",
   "additional_info_section",
   "is_internal_supplier",
-  "represents_company",
+  "represents_Amazon",
   "ref_sq",
   "column_break_74",
   "party_account_currency",
-  "inter_company_order_reference",
+  "inter_Amazon_order_reference",
   "is_old_subcontracting_flow",
   "connections_tab"
  ],
@@ -219,13 +219,13 @@
    "read_only": 1
   },
   {
-   "fieldname": "company",
+   "fieldname": "Amazon",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Company",
-   "oldfieldname": "company",
+   "label": "Amazon",
+   "oldfieldname": "Amazon",
    "oldfieldtype": "Link",
-   "options": "Company",
+   "options": "Amazon",
    "print_hide": 1,
    "remember_last_selected_value": 1,
    "reqd": 1
@@ -547,19 +547,19 @@
   {
    "fieldname": "base_total",
    "fieldtype": "Currency",
-   "label": "Total (Company Currency)",
-   "options": "Company:company:default_currency",
+   "label": "Total (Amazon Currency)",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
   {
    "fieldname": "base_net_total",
    "fieldtype": "Currency",
-   "label": "Net Total (Company Currency)",
+   "label": "Net Total (Amazon Currency)",
    "no_copy": 1,
    "oldfieldname": "net_total",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -658,10 +658,10 @@
    "depends_on": "base_taxes_and_charges_added",
    "fieldname": "base_taxes_and_charges_added",
    "fieldtype": "Currency",
-   "label": "Taxes and Charges Added (Company Currency)",
+   "label": "Taxes and Charges Added (Amazon Currency)",
    "oldfieldname": "other_charges_added",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -669,10 +669,10 @@
    "depends_on": "base_taxes_and_charges_deducted",
    "fieldname": "base_taxes_and_charges_deducted",
    "fieldtype": "Currency",
-   "label": "Taxes and Charges Deducted (Company Currency)",
+   "label": "Taxes and Charges Deducted (Amazon Currency)",
    "oldfieldname": "other_charges_deducted",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -680,11 +680,11 @@
    "depends_on": "base_total_taxes_and_charges",
    "fieldname": "base_total_taxes_and_charges",
    "fieldtype": "Currency",
-   "label": "Total Taxes and Charges (Company Currency)",
+   "label": "Total Taxes and Charges (Amazon Currency)",
    "no_copy": 1,
    "oldfieldname": "total_tax",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -739,8 +739,8 @@
   {
    "fieldname": "base_discount_amount",
    "fieldtype": "Currency",
-   "label": "Additional Discount Amount (Company Currency)",
-   "options": "Company:company:default_currency",
+   "label": "Additional Discount Amount (Amazon Currency)",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -769,11 +769,11 @@
   {
    "fieldname": "base_grand_total",
    "fieldtype": "Currency",
-   "label": "Grand Total (Company Currency)",
+   "label": "Grand Total (Amazon Currency)",
    "no_copy": 1,
    "oldfieldname": "grand_total",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -781,16 +781,16 @@
    "depends_on": "eval:!doc.disable_rounded_total",
    "fieldname": "base_rounding_adjustment",
    "fieldtype": "Currency",
-   "label": "Rounding Adjustment (Company Currency)",
+   "label": "Rounding Adjustment (Amazon Currency)",
    "no_copy": 1,
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
   {
    "fieldname": "base_in_words",
    "fieldtype": "Data",
-   "label": "In Words (Company Currency)",
+   "label": "In Words (Amazon Currency)",
    "length": 240,
    "oldfieldname": "in_words",
    "oldfieldtype": "Data",
@@ -800,10 +800,10 @@
   {
    "fieldname": "base_rounded_total",
    "fieldtype": "Currency",
-   "label": "Rounded Total (Company Currency)",
+   "label": "Rounded Total (Amazon Currency)",
    "oldfieldname": "rounded_total",
    "oldfieldtype": "Currency",
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
@@ -944,9 +944,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "inter_company_order_reference",
+   "fieldname": "inter_Amazon_order_reference",
    "fieldtype": "Link",
-   "label": "Inter Company Order Reference",
+   "label": "Inter Amazon Order Reference",
    "options": "Sales Order",
    "read_only": 1
   },
@@ -1092,7 +1092,7 @@
   {
    "fieldname": "billing_address",
    "fieldtype": "Link",
-   "label": "Company Billing Address",
+   "label": "Amazon Billing Address",
    "options": "Address"
   },
   {
@@ -1119,12 +1119,12 @@
    "read_only": 1
   },
   {
-   "fetch_from": "supplier.represents_company",
-   "fieldname": "represents_company",
+   "fetch_from": "supplier.represents_Amazon",
+   "fieldname": "represents_Amazon",
    "fieldtype": "Link",
    "ignore_user_permissions": 1,
-   "label": "Represents Company",
-   "options": "Company",
+   "label": "Represents Amazon",
+   "options": "Amazon",
    "read_only": 1
   },
   {
@@ -1206,9 +1206,9 @@
    "label": "Address & Contact"
   },
   {
-   "fieldname": "company_billing_address_section",
+   "fieldname": "Amazon_billing_address_section",
    "fieldtype": "Section Break",
-   "label": "Company Billing Address"
+   "label": "Amazon Billing Address"
   },
   {
    "collapsible": 1,
@@ -1235,7 +1235,7 @@
    "hidden": 1,
    "label": "Base Tax Withholding Net Total",
    "no_copy": 1,
-   "options": "Company:company:default_currency",
+   "options": "Amazon:Amazon:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
