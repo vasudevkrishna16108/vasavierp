@@ -10,7 +10,7 @@ data = {
 		"Task",
 		"Accounts",
 		"HR",
-		"ToDo",
+		"Todo",
 	],
 	"properties": [
 		{
